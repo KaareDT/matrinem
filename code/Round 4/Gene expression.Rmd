@@ -1,0 +1,108 @@
+---
+title: "Gene expression"
+author: "Kaare D. Tranaes"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(readxl)
+library(tidyverse)
+library(broom)
+library(ggpubr)
+library(AICcmodavg)
+library(visdat)
+library(rstatix)
+library(gt)
+library(gtsummary)
+library(patchwork)
+```
+
+#### Gene expression
+
+barcharts
+```{r}
+delta_gene_expr <- read_excel("../Data/CleanData/gene_expression_fold_changes.xlsx")
+
+bar_charts_all_genes <- delta_gene_expr %>% 
+  mutate(
+    groups = recode_factor(  #Change the order of the groups to desired plot order
+      groups,
+      "con-bf"= "CON-BF",
+      "fvt-form" = "VANCO-FF (FVT)",
+      "sm-form" = "VANCO-FF (SM)"
+      )) %>% 
+  group_by(genes, groups) %>% 
+  summarise(mean_fold_change = mean(relative_fold_change)) %>% 
+  ggplot(
+    aes(x = groups,
+        y = mean_fold_change,
+        fill = groups)
+  ) + 
+  geom_col() +
+  facet_wrap(~genes,
+             ncol = 5, 
+             scales = "free") +
+  labs(title = "Level of gene expression in ileum tissue",
+       y = "Gene expression relative fold change",
+       x = "",
+       fill = "Groups",
+       caption = "Matrinem round 4") +
+  theme_bw()+
+  theme(                   # Change the appearance of labels
+    plot.title = element_text(color="darkgrey", size=12, face="bold"),
+    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.title = element_text(face="bold"),   
+    legend.position="bottom",
+    legend.background = element_rect(fill="lightgrey"), # Change legend box background color
+    plot.caption = element_text(color = "darkgrey", size=5)) + 
+  scale_fill_brewer(palette="Set1")
+
+bar_charts_all_genes
+
+bar_charts_selected_genes <- delta_gene_expr %>% 
+  filter(genes %in% c("TNFa","IL1b", "REG3G")) %>% 
+  mutate(
+    groups = recode_factor(  #Change the order of the groups to desired plot order
+      groups,
+      "con-bf"= "CON-BF",
+      "fvt-form" = "VANCO-FF (FVT)",
+      "sm-form" = "VANCO-FF (SM)"
+      )) %>% 
+  group_by(genes, groups) %>% 
+  summarise(mean_fold_change = mean(relative_fold_change)) %>% 
+  ggplot(
+    aes(x = groups,
+        y = mean_fold_change,
+        fill = groups)
+  ) + 
+  geom_col() +
+  facet_wrap(~genes,
+             ncol = 5, 
+             scales = "free") +
+  labs(title = "Level of gene expression in ileum tissue - significant changes",
+       y = "Gene expression relative fold change",
+       x = "",
+       fill = "Groups",
+       caption = "Matrinem round 4") +
+  theme_bw()+
+  theme(                   # Change the appearance of labels
+    plot.title = element_text(color="darkgrey", size=12, face="bold"),
+    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.title = element_text(face="bold"),   
+    legend.position="bottom",
+    legend.background = element_rect(fill="lightgrey"), # Change legend box background color
+    plot.caption = element_text(color = "darkgrey", size=5)) + 
+  scale_fill_brewer(palette="Set1")
+
+bar_charts_selected_genes
+```

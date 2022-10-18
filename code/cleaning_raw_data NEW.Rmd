@@ -1,0 +1,230 @@
+---
+title: "document_title"
+author: "Kaare D. Tranaes"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, error = FALSE)
+```
+
+# Raw data cleaning document
+
+::: {#Project Description}
+This is a documentation of generating the working files from the raw data files. Every step of the process is explained below.  
+The raw data files can be accessed in the RawData folder associated with this project.  
+Once cleaned up, a new data file for further analysis is created and stored in CleanData folder.
+:::
+
+```{r load required libraries}
+library(readxl) 
+library(tidyverse)
+library(writexl)
+library(broom)
+```
+## Weight development data
+```{r load data}
+import_round1 <- read_excel("../Data/RawData/bodyweight_round_1.xlsx"
+        #                     , col_types = c("text","text", "text", "text", 
+        # "text", "text", "text", "text", "numeric", 
+        # "numeric", "numeric", "text")
+        ) %>% 
+  select(-`Pup ID`) %>% 
+  rename(sample_id = `Sample ID`,
+         exp_number = Round,
+         received_antibiotics = `Treatment with AB`, 
+         maternal_treatment = `Type of AB`,
+         type_of_feed = `Feeding`,
+         group = Group,
+         cage = Mother,
+         bodyweight_baseline = `Baseline weight`,
+         bodyweight_baseline_plus_24h = `Middle of study weight`,
+         bodyweight_baseline_plus_48h = `Weight End`)
+
+import_round2 <- read_excel("../Data/RawData/bodyweight_round_2.xlsx"
+        #                     ,col_types = c("text", "text", "text", 
+        # "text", "text", "text", "text", "numeric", 
+        # "numeric", "numeric", "numeric","numeric", "numeric")
+        ) %>% 
+  rename(sample_id = `ID`,
+         exp_number = Round,
+         received_antibiotics = `Treatment with AntiBiotic`, 
+         maternal_treatment = `Type of AB`,
+         type_of_feed = `Feed`,
+         group = Groups,
+         cage = Cage,
+         bodyweight_birthday_group_average = birthweight,
+         bodyweight_birthday_plus_24H_group_average = `birth+1day`,
+         bodyweight_birthday_plus_48H_group_average = `birth+2days (group mean)`,
+         bodyweight_baseline = `Baseline`,
+         bodyweight_baseline_plus_24h = `Study day 1`,
+         bodyweight_baseline_plus_48h = `End of study`)
+
+import_round3 <- read_excel("../Data/RawData/bodyweight_round_3.xlsx"
+        ) %>% 
+  select(-id) %>% 
+  rename(sample_id = `Sample ID`,
+         exp_number = Exp_number,
+         received_antibiotics = `Antibiotic yes/no`, 
+         maternal_treatment = `Type of AB`,
+         type_of_feed = `Type of feeding`,
+         group = Group,
+         bodyweight_baseline = `Start`,
+         bodyweight_baseline_plus_24h = `Day 2`,
+         bodyweight_baseline_plus_48h = `End weiight`) %>% 
+  mutate(sample_id = as.numeric(sample_id),
+          exp_number = as.numeric(exp_number))
+
+import_round4 <- read_excel("../Data/RawData/bodyweight_round_4.xlsx"
+        #                     ,col_types = c("text", "text", "text", 
+        # "text", "text", "text", "text", "text", 
+        # "numeric", "numeric", "numeric")
+        ) %>% 
+  select(-mark) %>% 
+  rename(sample_id = `Sample ID`, 
+         group = group,
+         bodyweight_baseline = `weight 0H`,
+         bodyweight_baseline_plus_24h = `Weight 24H`,
+         bodyweight_baseline_plus_48h = `Weight 48H`) %>% 
+  mutate(cage = as.numeric(cage))
+
+weights_all_rounds <- bind_rows(import_round1, import_round2, import_round3, import_round4) %>% 
+  relocate(comments, .after = bodyweight_birthday_plus_48H_group_average) %>% 
+  mutate(received_antibiotics = received_antibiotics %>% trimws(),
+         maternal_treatment = maternal_treatment %>% trimws()) %>% 
+  mutate(type_of_feed = if_else(type_of_feed == "Formula", "FF",
+                                      if_else(type_of_feed == "Breastmilk", "BF",
+                                              if_else(type_of_feed == "Breastfeeding", "BF", type_of_feed)))) %>% 
+  #mutate_if(is.character,tolower) %>% 
+  mutate(maternal_treatment = if_else(maternal_treatment == "Vanco", "VANCO",
+                                      if_else(maternal_treatment == "Vancomycin", "VANCO",
+                                      if_else(maternal_treatment == "Genta", "GENTA",
+                                              if_else(maternal_treatment == "Gentamycin", "GENTA",
+                                                      if_else(maternal_treatment == "Water", "CON",
+                                                              if_else(maternal_treatment == "Mix", "AB",
+                                                              maternal_treatment))))))) %>% 
+  unite(group2, maternal_treatment:type_of_feed, sep= "-", remove = FALSE)
+
+View(weights_all_rounds)
+rio::export(weights_all_rounds, file = "../Data/CleanData/weight_development.xlsx", overwrite = TRUE)
+```
+
+## Study IDs 
+```{r}
+study_chars <- weights_all_rounds %>% 
+  select(1:7)
+
+rio::export(study_chars, file = "../Data/CleanData/study_id_info.xlsx", overwrite = T)
+
+```
+
+## Cytokines from mesoscale assays
+```{r}
+study_chars <- read_excel("../Data/CleanData/study_id_info.xlsx")
+
+mesoscale_round_1 <- read_excel("../Data/RawData/cytokines_round_1_r.xlsm")
+
+mesoscale_round_2_and_3 <- read_excel("../Data/RawData/cytokines_round_2_and_3.xlsx") %>% 
+  rename("tissue_weight_mg" = "tissue_weight_(mg)", "exp_number" = "exp_no")
+
+mesoscale_round_4 <- read_excel("../Data/RawData/cytokines_round_4.xlsx") %>%
+  rename("group" = "Group", "exp_number" = "exp_no")
+
+mesoscale_all_rounds <- bind_rows(mesoscale_round_1, mesoscale_round_2_and_3, mesoscale_round_4) %>% 
+  select(-group, -treatment, - exp_number)
+
+cytokines <- left_join(study_chars, mesoscale_all_rounds, by = c("sample_id" = "sample")) %>% 
+  relocate(tissue:tissue_weight_mg, .after= type_of_feed)
+
+#rio::export(cytokines, file = "../Data/CleanData/cytokines.xlsx")
+```
+
+## Intestinal permeability - FITC-Dextran assays
+```{r}
+fitc_round_2_and_3 <- read_excel("../Data/RawData/FITC_round_2-3.xlsx") %>% 
+  rename(exp_number = exp_no) %>% 
+  mutate("result_µg/ml_undiluted" = `result_µg/ml`*dilution_factor)
+
+fitc_round_4 <- read_excel("../Data/RawData/FITC_round_4.xlsx") %>% 
+  mutate("result_µg/ml_undiluted" = `result_µg/ml`*dilution_factor)
+
+fitc_all_rounds <- bind_rows(fitc_round_2_and_3, fitc_round_4) %>% 
+  select(-group, - exp_number, -cage)
+
+fitc <- left_join(study_chars, fitc_all_rounds, by = c("sample_id" = "sample")) %>%  
+  filter(exp_number != "1")  # FITC-Dextran not performed in experimental round 1.
+  
+
+rio::export(fitc, file = "../Data/CleanData/fitc.xlsx")
+```
+
+## Gene expression - qPCR results
+```{r}
+### Start here. Or do it in excel.
+study_chars <- read_excel("../Data/CleanData/study_id_info.xlsx")
+qpcr <- read_excel("../Data/RawData/all_genes_ct_values.xlsx")
+
+qpcr <- qpcr %>% 
+  mutate(mean_cqt = (Cq1 + Cq2)/2) %>% 
+  pivot_wider(id_cols = Sample, 
+              names_from = Gene,
+              values_from = mean_cqt)
+
+gene_expr <- study_chars %>%   #### Maybe export this to excel and try to create double delta ct analysis there. 
+  filter(sample_id %in% 89:112) %>% 
+  left_join(., qpcr, by = c("sample_id" = "Sample"))
+
+
+delta_gene_expr <- gene_expr %>%
+  rename(ct_value_house_gene_HRPT = `House gene (HRPT)`) %>% 
+  pivot_longer(cols = CD8:VEGFa,
+               names_to = "genes",
+               values_to = "ct_value") %>%
+  select(sample_id, groups, genes, ct_value, ct_value_house_gene_HRPT) %>% 
+    filter(!is.na(ct_value)) %>%
+  mutate(dct = ct_value-ct_value_house_gene_HRPT) %>% 
+  group_by(genes, groups) %>% 
+  mutate(avg_group_dct_val = mean(dct)) %>% 
+  group_by(genes) %>% 
+  mutate(ddct = dct - (avg_group_dct_val[groups=="con-bf"])) %>% 
+  mutate("2^-(ddct)" = 2^-ddct) %>% 
+  group_by(genes, groups) %>% 
+  mutate(avg_group_2_exp_ddct_val = mean(`2^-(ddct)`)) %>%
+  group_by(genes) %>% 
+  mutate(relative_fold_change = `2^-(ddct)`/(avg_group_2_exp_ddct_val[groups=="con-bf"]))
+
+# delta_gene_expr %>% 
+#   group_by(genes, groups) %>% 
+#   summarise(mean_fold_change = mean(relative_fold_change))
+
+#rio::export(delta_gene_expr, file = "../Data/CleanData/gene_expression_fold_changes.xlsx")
+
+```
+
+```{r}
+
+bar_charts <- delta_gene_expr %>% 
+  group_by(genes, groups) %>% 
+  summarise(mean_fold_change = mean(relative_fold_change)) %>% 
+  ggplot(
+    aes(x = groups,
+        y = mean_fold_change,
+        fill = groups)
+  ) + 
+  geom_col() +
+  facet_wrap(~genes,
+             ncol = 5) +
+  labs(title = "Gene expression fold change",
+       y = "Gene expression fold change",
+       x = "Groups"
+      )
+```
+
+
+```{r}
+delta_gene_expr %>%
+  filter(genes %in% "CD8") %>% 
+  anova(relative_fold_change ~ groups, data = .)
+```
+
