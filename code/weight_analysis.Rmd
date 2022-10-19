@@ -1,0 +1,219 @@
+---
+title: "Weight analysis"
+author: "Kaare D. Tranaes"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Analysis of the weight development in the MARTRINEM study 
+```{r}
+data <- read_excel("data/processed/weight_development.xlsx") %>% 
+  select(sample_id:cage, bodyweight_birthday_group_average, bodyweight_birthday_plus_24H_group_average, bodyweight_birthday_plus_48H_group_average, bodyweight_baseline, bodyweight_baseline_plus_24h, bodyweight_baseline_plus_48h) %>% 
+  rename(day_0 = "bodyweight_birthday_group_average",
+         day_1 = "bodyweight_birthday_plus_24H_group_average", 
+         day_2 = "bodyweight_birthday_plus_48H_group_average",
+         day_3 = bodyweight_baseline, 
+         day_4 = `bodyweight_baseline_plus_24h`, 
+         day_5 = `bodyweight_baseline_plus_48h`,) %>% 
+  pivot_longer(., cols = c(day_0:day_5),
+                names_to = "time",
+                values_to = "bodyweight") %>% 
+  mutate(received_antibiotics = recode_factor(received_antibiotics, 
+                                       yes = "MAT",
+                                       no = "CON"))
+  #%>%
+  # #mutate(across(where(is_character),as_factor))  
+
+exp2.bw.density <- data %>% 
+  filter(exp_number == "2") %>% 
+  filter(time == 'day_0') %>% 
+  ggplot(aes(x = bodyweight, color = received_antibiotics)) +
+    geom_density() +
+  geom_vline(data = data %>% 
+              filter(exp_number == "2") %>% 
+  filter(time == 'day_0') %>% 
+  group_by(received_antibiotics) %>% 
+  summarise(grp.mean = mean(bodyweight)), aes(xintercept=grp.mean, color=received_antibiotics),
+             linetype="dashed") +
+  guides(fill = guide_legend(title = ""),
+         colour = guide_legend(title = " ")) + 
+  labs(title = "", y = "n", x = "Bodyweight (g)") +
+  theme_minimal() 
+
+exp2.bw.col <- data %>% 
+  filter(exp_number == "2") %>% 
+  filter(time == 'day_0') %>% 
+  ggplot(aes(x = received_antibiotics, y = bodyweight, fill = received_antibiotics)) +
+  geom_bar(stat = "summary",
+           fun = "mean") +
+  labs(title = "", y = "Mean body weight", x = "") +
+  theme_minimal() +  
+  stat_compare_means(
+    method = "t.test", 
+    label.y = 1.6, 
+    label.x.npc = 0.4) +
+  theme(legend.position="none")
+
+birth_weight_patch <- (exp2.bw.density + exp2.bw.col) + plot_annotation(
+  title = 'Effect of Maternal Antibiotics Treatment on birth weight of offspring',
+  subtitle = 'Experimental round 2',
+  tag_levels = 'A',
+  caption = 'MAT = Maternal Antibiotics Treatment, CON = Water Controls \n 
+  Statistics: non-paired two.sided t-test.'
+)
+birth_weight_patch
+#ggsave("../Results/Weight/Figure_1_Birthweights.png", birth_weight_patch)
+
+#add gt table with group results
+
+
+```
+
+```{r eval=FALSE, include=FALSE}
+### Weight development during experiments   ########### 
+
+bw_development_feed <- data %>% 
+filter(exp_number %in% c("1","3","4")) %>% 
+filter(time %in% c("day_3", "day_5")) %>%
+ggplot(aes(x = time ,
+           y = bodyweight, 
+           fill = type_of_feed)) +
+  facet_wrap(~ exp_number + type_of_feed, 
+             ncol = 2) + 
+  geom_bar(stat = "identity",
+           position = "dodge") + 
+  guides(fill = guide_legend(title = " ")) +
+  labs(
+      caption = "Experimental round 2 not shown due to no formula feeding.",
+    y = "Bodyweight (g)"
+  ) +
+  theme_bw()
+
+bw_development_ab <- data %>% 
+filter(exp_number %in% c("1","2","3","4")) %>% 
+filter(time %in% c("day_3", "day_5")) %>%
+ggplot(aes(x = time ,
+           y = bodyweight, 
+           fill = received_antibiotics)) +
+  facet_wrap(~ exp_number + received_antibiotics, 
+             ncol = 2) + 
+  geom_bar(stat = "identity",
+           position = "dodge") + 
+  guides(fill = guide_legend(title = " ")) +
+  labs(caption = "All mice recieved antibiotics in experimental round 4.",
+    y = "Bodyweight (g)"
+  ) +
+  theme_bw()
+
+bodyweight_develop_patch <- (bw_development_feed + bw_development_ab) + plot_annotation (
+  title = 'Effect of Maternal Antibiotics Treatment on body weight development of offspring',
+  subtitle = 'Faceted by experiment and Feeding or MAT-status',
+  tag_levels = 'A',
+  caption = 'Form = formular feed, Milk = breastfeeding.  
+      MAT = Maternal Antibiotics Treatment, CON = Water Controls.')
+      
+bodyweight_develop_patch
+#ggsave("../Results/Weight/Figure_2_bodyweight_development.png", bodyweight_develop_patch)
+
+```
+
+### Research Question 1: Body weight of offspring from water and antibiotic-treated mice at baseline
+
+```{r style baseline bodyweight}
+get_box_stats <- function(y, upper_limit = max(data$Bodyweight[data$Time == "Day2"]) * 1.0) {
+  return(data.frame(
+    y = 0.9 * upper_limit,
+    label = paste(
+      "n =", length(y), "\n",
+      "Mean =", round(mean(y), 2), "\n" #,
+      #"Median =", round(median(y), 2), "\n"
+    )
+  ))
+}
+
+my_comparisons <- list( c("Water", "AB"))
+
+data %>% 
+  filter(Time == "Day2") %>% 
+  ggplot(aes(
+    received_antibiotic, Bodyweight
+  )) + 
+  geom_boxplot() +
+  facet_wrap(~experiment_no, 
+             nrow = 1) + 
+  geom_dotplot(
+     binaxis = "y", stackdir = "center", dotsize = 0.5) + 
+  stat_summary(
+    fun.data = get_box_stats, geom = "text", hjust = 0.5, vjust = 0.9) +
+  labs(
+    title = "Body weight of offspring from antibiotic-treated vs water-treated mice",
+    subtitle = "Results shown from each of the 4 experimental rounds",
+    caption = "In Exp. 4 all mice received antibiotoics, hence no control.
+    Comparison method: Student T-test",
+    x = "Maternal Treatment",
+    y = "Bodyweight at end of study (g)"
+  ) +
+  theme_bw() + 
+  stat_compare_means(
+    method = "t.test", 
+    label.y = 3, 
+    comparisons = my_comparisons
+    )
+```
+
+```{r weightgain plots}
+############# Effect of Formula vs. Breastfeeding on Weight Gain" ###################
+
+bodyweight_gain_BFvsFORM <- data %>% 
+  mutate(weightgain = weight_end - weight_baseline) %>% 
+  ggplot(aes(
+    type_of_feed, weightgain
+  )) + 
+  geom_boxplot() +
+  facet_wrap(~experiment_no, 
+             nrow = 1) +
+geom_dotplot(
+     binaxis = "y", stackdir = "center", dotsize = 0.5) + 
+  stat_summary(
+    fun.data = get_box_stats, geom = "text", hjust = 0.2, vjust = 0.9) +
+  labs(
+    title = "Effect of Formula vs. Breastfeeding on Weight Gain",
+    subtitle = "Results shown from each of the 4 experimental rounds",
+    caption = "In Exp. 2 all mice were breastfed.
+    Comparison method: Student T-test",
+    x = "Type of feed",
+    y = "Body weight increase  (g)"
+  ) +
+  theme_bw() + 
+  stat_compare_means(
+    method = "t.test", 
+    label.y = 3, 
+    comparisons = my_comparisons_2
+    )
+my_comparisons_2 <- list( c("Breastmilk", "Formula"))
+bodyweight_gain_BFvsFORM
+```
+
+```{r weightgain plot 2}
+############# Effect of  Antibiotocis on weightgain in Breastfed offspring" ################
+
+bodyweight_gain_WATER_BF_vs_AB_BF <- 
+  data %>% 
+  mutate(weightgain = weight_end - weight_baseline) %>% 
+  filter(type_of_feed == "Breastmilk") %>% 
+  ggplot(aes(
+    received_antibiotic, weightgain#, colour = mother
+    )) + 
+  geom_boxplot()+
+  geom_point()+
+  facet_wrap(~experiment_no, 
+             nrow = 1) +
+  labs(
+    title = "Breastfed offspring +/- Maternal Antiobiotics Treatment"
+  )
+bodyweight_gain_WATER_BF_vs_AB_BF
+```

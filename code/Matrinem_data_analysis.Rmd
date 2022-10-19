@@ -2,16 +2,19 @@
 title: "Results section"
 author: "Kaare"
 date: "6/16/2022"
-output: html_document
-editor_options: 
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
   chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+#setwd(dir = "../../2022_matrinem_thesis/")
 ```
 
-```{r loading libraries}
+```{r loading libraries, message=FALSE}
 library(readxl)
 library(tidyverse)
 library(broom)
@@ -27,17 +30,7 @@ library(jtools)
 
 # MATRINEM - Attempts at creating a NEC mouse model
 
-## Preface
-
-## Introduction
-
-This thesis is about...
-
-## Background
-
-## Methods and Materials
-
-Prior to results are presented a short description of the studies conducted needs to be made.
+## The research questions
 
 Experiment no. 4 was the goal, but before we could test our overall hypothesis we needed to find out which combination of antibiotics and feeding scheme would results in the most NEC-like phenotype.
 
@@ -64,25 +57,16 @@ These research questions were investigated in 3 pre-experiments (PreExp 1-3), ea
 
 ### PreExp 1 - Feasibility Study
 
-#### **Rationale:**
+#Load in the data
 
-*Chen et al.*, showed that Maternal Antibiotics Treatment (**MAT**) resulted in mild NEC-like symptoms of mice offspring. We believed that MAT combined with formula feeding (**FF**) of offspring would result in a worsened phenotype - [even more NEC-like than either treatment on it's own.]{.underline}
-
-#### **Aim:**
-
-To test if it was possible to keep mice separated from the mother alive from postnatal day 3 and 48 hours onwards.
-
-#### **Research Questions:**
-
--   Can we keep offspring alive with formula feeding?
--   Will combining MAT with FF result in a more inflammatory intestine as measured by cytokine analysis in the ileum.
-
-Experiment 1 was a pilot to test whether it was possible to feed 3-day old mice with the PICC. The experimental setup followed the standard setup. Antibiotics was administered according to the description in Chen et al., though with a lower dose based on previous experiments. Our primary study objective was survival. Secondary objective was macroscopic evaluation of intestines for inflammation, intestinal distention and similar NEC-like symptoms. One preliminary hypothesis was a reduction in weight of offspring from antibiotics-treated mothers.
-
-**Results**: `r inline_text(tbl1, {N})` mice were born to 6 different mothers. Of these 32 survived and were included in the analysis. Cytokines
+```{r include=FALSE}
+preexp_1 <- read_excel("data/processed/weight_development.xlsx") %>% 
+  filter(exp_number == "1") 
+```
 
 ```{r}
-cytokines_1 <- read_excel(path = "data/processed/cytokines.xlsx") %>%  #Load in cytokine data for all experiments
+#__________Load in cytokine data for all experiments________
+cytokines_1 <- read_excel(path = "data/processed/cytokines.xlsx") %>%  
   filter(exp_number == 1) %>% 
   filter(tissue == "ileum") %>% 
   mutate(
@@ -93,21 +77,48 @@ cytokines_1 <- read_excel(path = "data/processed/cytokines.xlsx") %>%  #Load in 
       "AB-BF"= "AB-BF",
       "AB-FF"= "AB-FF"
       ))
+#___________________________________________________________
 
+
+#__________ Pivot longer  ____________
 cytokines_1_long <- cytokines_1 %>% 
   pivot_longer(cols = INFg:TNFa, 
                names_to = "cytokines", 
                values_to = "cytokine_concentration") %>% 
   drop_na(cytokine_concentration)
+#___________________________________________________________
+```
 
+#### **Rationale:**
+
+*Chen et al.*, showed that Maternal Antibiotics Treatment (**MAT**) resulted in mild NEC-like symptoms of mice offspring. We believed that MAT combined with formula feeding (**FF**) of offspring would result in a worsened phenotype - [even more NEC-like than either treatment on it's own.]{.underline}
+
+#### **Aim:**
+
+To test if it was possible to keep mice separated from the mother alive from postnatal day 3 and 48 hours onwards.
+
+#### **Research Questions:**
+
+##### Can we keep offspring alive with formula feeding?
+
+`r nrow(preexp_1)` mice were born to 6 different mothers. Of these 32 survived and were included in the analysis. After fine-tuning the feeding method we we able to successfully feed all surviving (32) mice every 3 hours for 2 days (48 hours).
+
+##### Will MAT and FF affect levels of inflammatory cytokines in ileum tissue?
+
+```{r}
+#___________ Check cytokine distribution for normality, filter significant ones _____________________
 normality_check <- cytokines_1_long %>% 
   group_by(cytokines) %>% 
   shapiro_test(cytokine_concentration) %>% 
-  select(cytokines, p) %>% 
+  select(cytokines, p)
+#___________________________________________________________
+
+non_normal_cytokines <- normality_check %>% 
   filter(p < 0.05) 
-  
+
+#___________ Jitterplot of all non-normally distributed cytokines _____________________
 normality_plot <- cytokines_1_long %>%
-  filter(cytokines %in% normality_check$cytokines ) %>% 
+  filter(cytokines %in% non_normal_cytokines$cytokines ) %>% 
   ggplot(aes(x = group, 
              y = cytokine_concentration,
              color = group)) + 
@@ -118,13 +129,17 @@ normality_plot <- cytokines_1_long %>%
        y = "Concentration of cytokine in tissue (pg/mL)",
        x = "") +
   theme_bw()
+#___________________________________________________________
 
-normality_plot
-
+#___________ Jitterplot of all non-normally distributed cytokines _____________________
 normality_result_1 <- normality_check %>% 
-  knitr::kable(caption = "Non-normally distributed cytokines (Shapiro-Wilk Normality Test, p < 0.05)")
-normality_result_1
+  knitr::kable(caption = "Normallity check of cytokine distribution (Shapiro-Wilk Normality Test, p < 0.05)")
+#___________________________________________________________
+
+names_of_cytokines <-unique(cytokines_1_long$cytokines)
 ```
+
+`r nrow(cytokines_1)` samples were available for analysis of concentrations of the proinflammatory cytokines `r names_of_cytokines`. Concentrations were measured in 1-cm sections of proximal/distal ileum tissue using MSD Mesoscale Kits.
 
 ```{r}
 tbl1 <- cytokines_1 %>% 
@@ -155,16 +170,14 @@ tbl1 <- cytokines_1 %>%
              stat_1 ~ px(150),
              stat_2 ~ px(150),
              stat_3 ~ px(150),
-             stat_4 ~ px(150)) 
+             stat_4 ~ px(150))
+```
+
+The concentrations of the various cytokines are shown in the table below:
+
+```{r, echo=FALSE}
 tbl1_gt
-# Save and export files
-# tbl1 %>%  #Save as excel file.
-#   as_hux_table() %>%
-#   huxtable::quick_xlsx(., file = "../Results/Round 1/ileum-cytokines.xlsx")
-# 
-# tbl1 %>% #Save as image file.
-# as_flex_table() %>%
-#   flextable::save_as_image(path = "../../Results/Round 1/ileum_cytokines_table.png",webshot = "webshot")
+
 ```
 
 ```{r plots all cytokines, warning=FALSE}
@@ -203,8 +216,26 @@ all_cytokines_patch <- plot_all_cytokines + plot_annotation (
                 plot.subtitle = element_text(hjust = 0.5, face = "bold.italic"),
                 plot.caption = element_text(hjust = 0.5, size=7,face = "bold")))
   
-all_cytokines_patch
+#all_cytokines_patch
 #ggsave('../../Results/Round 1/All Cytokines-boxplot.png',all_cytokines_patch)
+```
+
+Cytokine levels are shown below:
+
+```{r echo=FALSE}
+all_cytokines_patch
+```
+
+Distributions were assessed for normality with Shapiro-Wilk Normality Test (see table below), and plot of data were made to assess distributions visually:
+
+```{r echo=FALSE, fig.cap='Table of test results:'}
+normality_result_1
+```
+
+Most measured cytokines wore not normally disrtibuted. Consider logtransformation
+
+```{r Normality plot, echo=FALSE, fig.cap='Non-normally distributed plots'}
+normality_plot
 ```
 
 ```{r}
@@ -256,10 +287,19 @@ signif_cytokines_patch <- signif_cytokines + plot_annotation (
   theme = theme(plot.title = element_text(hjust = 0.5, size=14, face="bold"),
                 plot.subtitle = element_text(hjust = 0.5, face = "bold.italic"),
                 plot.caption = element_text(hjust = 0.5, size=7,face = "bold")))
-signif_cytokines_patch
+#signif_cytokines_patch
 #ggsave('../../Results/Round 1/Significant Cytokines-boxplot.png',signif_cytokines_patch)
 ```
 
+The cytokines that were significantly different between groups are shown below:
+
+```{r, echo= FALSE}
+signif_cytokines_patch
+```
+
+The plot above shows that the cytokines significantly affected / difference were `r tbl1_p$Cytokines`.
+
+A linear regression analysis calculates the factors responsible for the changes observed.
 
 ```{r echo=FALSE, warning=FALSE}
 #### Make regression model on long format
@@ -268,281 +308,49 @@ reg_mod_cyt_1 <- cytokines_1_long %>%
   do(lm(data = ., cytokine_concentration ~ maternal_treatment*type_of_feed) %>% tidy)  %>% filter(term!='(Intercept)') %>% 
   ungroup() %>% 
   filter(p.value < 0.05)
-
-reg_mod_cyt_1 %>% 
-  select(-statistic) %>% 
-  knitr::kable(., caption = 'Significant effectors on cytokine expression', digits = 3)
 ```
 
-Statistically significant group differences were observed for IL-6 (`r inline_text(tbl1, column = "p.value", variable = "IL_6")`), KCGRO (`r inline_text(tbl1, column = "p.value", variable = "KCGRO")`) and TNFa (`r inline_text(tbl1, column = "p.value", variable = "TNFa")`).
+```{r echo=FALSE, warning=FALSE}
+reg_mod_cyt_1 %>% 
+  select(-statistic) %>% 
+  knitr::kable(., caption = 'Significant effectors on cytokine expression', digits = 5)
 
+ff_affected_cytokines <- reg_mod_cyt_1 %>% 
+  filter(term %in% "type_of_feedFF") %>% 
+  pull(cytokines)
 
-**The conclusion** is that many of the cytokines show an interaction effect of the two treatment parameters
+ff_affected_cytokines_pvals <- reg_mod_cyt_1 %>% 
+  filter(term %in% "type_of_feedFF") %>% 
+  pull(p.value)
+```
+
+Formula-feeding looks to be the most determining factor for changes to cytokine expression.
+
+**The conclusion** is that many of the cytokines show an interaction effect of the two treatment parameters.
 
 #### Summary of PreExp 1
 
--   Can we keep offspring alive with formula feeding?
+-   We could keep them alive with proper feeding technique.
 
-    -   After fine-tuning the feeding method we we able to successfully feed all surviving (32) mice every 3 hours.
-    -   The formulafed animals gained weight - albeit less than their breastfed peers - during the 48 hours.
-    -   MAT did not affect growth. CON-BF and AB-BF gained weight at a similar pace.
+-   Formula feeding looks to be the most determining factor for `r ff_affected_cytokines` (p-values `r ff_affected_cytokines_pvals`, respectively).
 
--   
 
-    ## Will combining MAT with FF result in a more inflammatory intestine as measured by cytokine analysis in the ileum.
 
 ### PreExp 2 - Selectively targeting gram+ or gram- bacteria
 
-# Experiment 2 - weight at birth.Summary: Offspring from antibiotics-treated mice were smaller at birth
+#### **Rationale** 
+- Based on the results from Preexp 1 we knew that we could perform the experimental setup without too many casualties. 
+- We had seen that formula-feeding did affect the expression of cytokines, but visual inspection of the intestines showed that we had not managed to create a NEC-like phenotype. 
+- After considering the results we realized that our assumptions were based on a dysbiotics microbiome in the mother leading to less immunizing milk. However, we had likely not created a dysbiosis as much as an overall depletion by administering a broad-spectered antibiotic. 
+We therefore hypothezised that targeting specific stains of bacteria would lead to a more dysbiotic microbiome and allow for greater disbiosis in the offspring. 
 
-```{r}
-data <- read_excel("../Data/CleanData/weight_development.xlsx") %>% 
-  select(sample_id:cage, bodyweight_birthday_group_average, bodyweight_birthday_plus_24H_group_average, bodyweight_birthday_plus_48H_group_average, bodyweight_baseline, bodyweight_baseline_plus_24h, bodyweight_baseline_plus_48h) %>% 
-  rename(day_0 = "bodyweight_birthday_group_average",
-         day_1 = "bodyweight_birthday_plus_24H_group_average", 
-         day_2 = "bodyweight_birthday_plus_48H_group_average",
-         day_3 = bodyweight_baseline, 
-         day_4 = `bodyweight_baseline_plus_24h`, 
-         day_5 = `bodyweight_baseline_plus_48h`,) %>% 
-  pivot_longer(., cols = c(day_0:day_5),
-                names_to = "time",
-                values_to = "bodyweight") %>% 
-  mutate(received_antibiotics = recode_factor(received_antibiotics, 
-                                       yes = "MAT",
-                                       no = "CON"))
-  #%>%
-  # #mutate(across(where(is_character),as_factor))  
+- In **PreExp 2** we therefore tested whether selectively targeting gram+ or gram- bacteria would lead to different and more pronounced NEC-like symptoms. 
 
-exp2.bw.density <- data %>% 
-  filter(exp_number == "2") %>% 
-  filter(time == 'day_0') %>% 
-  ggplot(aes(x = bodyweight, color = received_antibiotics)) +
-    geom_density() +
-  geom_vline(data = data %>% 
-              filter(exp_number == "2") %>% 
-  filter(time == 'day_0') %>% 
-  group_by(received_antibiotics) %>% 
-  summarise(grp.mean = mean(bodyweight)), aes(xintercept=grp.mean, color=received_antibiotics),
-             linetype="dashed") +
-  guides(fill = guide_legend(title = ""),
-         colour = guide_legend(title = " ")) + 
-  labs(title = "", y = "n", x = "Bodyweight (g)") +
-  theme_minimal() 
-
-exp2.bw.col <- data %>% 
-  filter(exp_number == "2") %>% 
-  filter(time == 'day_0') %>% 
-  ggplot(aes(x = received_antibiotics, y = bodyweight, fill = received_antibiotics)) +
-  geom_bar(stat = "summary",
-           fun = "mean") +
-  labs(title = "", y = "Mean body weight", x = "") +
-  theme_minimal() +  
-  stat_compare_means(
-    method = "t.test", 
-    label.y = 1.6, 
-    label.x.npc = 0.4) +
-  theme(legend.position="none")
-
-birth_weight_patch <- (exp2.bw.density + exp2.bw.col) + plot_annotation(
-  title = 'Effect of Maternal Antibiotics Treatment on birth weight of offspring',
-  subtitle = 'Experimental round 2',
-  tag_levels = 'A',
-  caption = 'MAT = Maternal Antibiotics Treatment, CON = Water Controls \n 
-  Statistics: non-paired two.sided t-test.'
-)
-birth_weight_patch
-#ggsave("../Results/Weight/Figure_1_Birthweights.png", birth_weight_patch)
-
-#add gt table with group results
+#### Research questions: 
+##### Will selectively targering gram+ or gram- bacteria with Vancomycin and Gentamicin respectively lead to more pronounced NEC-like symptoms compared with no treatment on the background of breastfeeding.
 
 
-```
 
-```{r eval=FALSE, include=FALSE}
-### Weight development during experiments   ########### 
-
-bw_development_feed <- data %>% 
-filter(exp_number %in% c("1","3","4")) %>% 
-filter(time %in% c("day_3", "day_5")) %>%
-ggplot(aes(x = time ,
-           y = bodyweight, 
-           fill = type_of_feed)) +
-  facet_wrap(~ exp_number + type_of_feed, 
-             ncol = 2) + 
-  geom_bar(stat = "identity",
-           position = "dodge") + 
-  guides(fill = guide_legend(title = " ")) +
-  labs(
-      caption = "Experimental round 2 not shown due to no formula feeding.",
-    y = "Bodyweight (g)"
-  ) +
-  theme_bw()
-
-bw_development_ab <- data %>% 
-filter(exp_number %in% c("1","2","3","4")) %>% 
-filter(time %in% c("day_3", "day_5")) %>%
-ggplot(aes(x = time ,
-           y = bodyweight, 
-           fill = received_antibiotics)) +
-  facet_wrap(~ exp_number + received_antibiotics, 
-             ncol = 2) + 
-  geom_bar(stat = "identity",
-           position = "dodge") + 
-  guides(fill = guide_legend(title = " ")) +
-  labs(caption = "All mice recieved antibiotics in experimental round 4.",
-    y = "Bodyweight (g)"
-  ) +
-  theme_bw()
-
-bodyweight_develop_patch <- (bw_development_feed + bw_development_ab) + plot_annotation (
-  title = 'Effect of Maternal Antibiotics Treatment on body weight development of offspring',
-  subtitle = 'Faceted by experiment and Feeding or MAT-status',
-  tag_levels = 'A',
-  caption = 'Form = formular feed, Milk = breastfeeding.  
-      MAT = Maternal Antibiotics Treatment, CON = Water Controls.')
-      
-bodyweight_develop_patch
-#ggsave("../Results/Weight/Figure_2_bodyweight_development.png", bodyweight_develop_patch)
-
-```
-
-### Research Question 1: Body weight of offspring from water and antibiotic-treated mice at baseline
-
-```{r style baseline bodyweight}
-get_box_stats <- function(y, upper_limit = max(data$Bodyweight[data$Time == "Day2"]) * 1.0) {
-  return(data.frame(
-    y = 0.9 * upper_limit,
-    label = paste(
-      "n =", length(y), "\n",
-      "Mean =", round(mean(y), 2), "\n" #,
-      #"Median =", round(median(y), 2), "\n"
-    )
-  ))
-}
-
-my_comparisons <- list( c("Water", "AB"))
-
-data %>% 
-  filter(Time == "Day2") %>% 
-  ggplot(aes(
-    received_antibiotic, Bodyweight
-  )) + 
-  geom_boxplot() +
-  facet_wrap(~experiment_no, 
-             nrow = 1) + 
-  geom_dotplot(
-     binaxis = "y", stackdir = "center", dotsize = 0.5) + 
-  stat_summary(
-    fun.data = get_box_stats, geom = "text", hjust = 0.5, vjust = 0.9) +
-  labs(
-    title = "Body weight of offspring from antibiotic-treated vs water-treated mice",
-    subtitle = "Results shown from each of the 4 experimental rounds",
-    caption = "In Exp. 4 all mice received antibiotoics, hence no control.
-    Comparison method: Student T-test",
-    x = "Maternal Treatment",
-    y = "Bodyweight at end of study (g)"
-  ) +
-  theme_bw() + 
-  stat_compare_means(
-    method = "t.test", 
-    label.y = 3, 
-    comparisons = my_comparisons
-    )
-```
-
-```{r weightgain plots}
-############# Effect of Formula vs. Breastfeeding on Weight Gain" ###################
-
-bodyweight_gain_BFvsFORM <- data %>% 
-  mutate(weightgain = weight_end - weight_baseline) %>% 
-  ggplot(aes(
-    type_of_feed, weightgain
-  )) + 
-  geom_boxplot() +
-  facet_wrap(~experiment_no, 
-             nrow = 1) +
-geom_dotplot(
-     binaxis = "y", stackdir = "center", dotsize = 0.5) + 
-  stat_summary(
-    fun.data = get_box_stats, geom = "text", hjust = 0.2, vjust = 0.9) +
-  labs(
-    title = "Effect of Formula vs. Breastfeeding on Weight Gain",
-    subtitle = "Results shown from each of the 4 experimental rounds",
-    caption = "In Exp. 2 all mice were breastfed.
-    Comparison method: Student T-test",
-    x = "Type of feed",
-    y = "Body weight increase  (g)"
-  ) +
-  theme_bw() + 
-  stat_compare_means(
-    method = "t.test", 
-    label.y = 3, 
-    comparisons = my_comparisons_2
-    )
-my_comparisons_2 <- list( c("Breastmilk", "Formula"))
-bodyweight_gain_BFvsFORM
-```
-
-```{r weightgain plot 2}
-############# Effect of  Antibiotocis on weightgain in Breastfed offspring" ################
-
-bodyweight_gain_WATER_BF_vs_AB_BF <- 
-  data %>% 
-  mutate(weightgain = weight_end - weight_baseline) %>% 
-  filter(type_of_feed == "Breastmilk") %>% 
-  ggplot(aes(
-    received_antibiotic, weightgain#, colour = mother
-    )) + 
-  geom_boxplot()+
-  geom_point()+
-  facet_wrap(~experiment_no, 
-             nrow = 1) +
-  labs(
-    title = "Breastfed offspring +/- Maternal Antiobiotics Treatment"
-  )
-bodyweight_gain_WATER_BF_vs_AB_BF
-```
-
-#### Histological analysis
-
-#### Cytokine expression
-
-boxpltos
-
-```{r}
-boxplots_all_genes <- delta_gene_expr %>% 
-  ggplot(
-    aes(x = groups,
-        y = relative_fold_change,
-        fill = groups)
-  ) + 
-  geom_boxplot() +
-  facet_wrap(~genes,
-             ncol = 5, 
-             scales = "free") +
-  labs(title = "Gene expression fold change",
-       y = "Gene expression fold change",
-       x = "Groups"
-      )
-boxplots_all_genes
-
-```
-
-#### Gut microbiome analysis
-
-### Experiment 2 (E2)
-
-#### Weight development
-
-#### Histological analysis
-
-#### Intestinal permeability
-
-#### Cytokine expression
-
-#### Gene expression
-
-#### Gut microbiome analysis
 
 ### Experiment 4 (NEC-FvT)
 
@@ -553,7 +361,7 @@ The PreExps are now over and it is time to conduct the study. Having determined 
 #### Intestinal permeability - FITC
 
 ```{r FITC load data, include=FALSE}
-fitc <- read_excel("../Data/CleanData/fitc.xlsx") %>% 
+fitc <- read_excel("data/processed/fitc.xlsx") %>% 
   rename(values = `result_µg/ml_undiluted`) %>% 
   drop_na(values)
 ```
@@ -617,10 +425,3 @@ jitter <- fitc %>%
 
 ```
 
-#### Cytokine expression
-
-#### Gene expression
-
-#### Histological analysis
-
-#### Gut microbiome analysis
