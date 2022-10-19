@@ -5,6 +5,40 @@ output: html_document
 
 ## Introduction
 
-## Results
+- NEC is caused by bacterial dysbiosis - we think. 
+- (AND) high-osmolar formula feed is hard on intestinal lining. 
+- (AND) Chen et al. saw NEC-like symptoms with MAT.
+- (BUT) No enough on its own plus too old mice. 
+- (Therefore) We want to see if MAT + FF will result in more severe NEC-like symptoms. (AIM)
+- (AND) FvT are currently being studied as potential remidies to NEC - thought to be mediated
+via stabilizing effect on microbiome. 
+- (Therefore) We want to see if A) we manage to induce NEC, are we able to "cure" it, or B) in 
+case of no NEC, is FvT on it's own safe or associated with any adverse effects? 
+
+## Results (decide on which voice to use, active or passive. Read other papers.)
+- We treated XX mothers with Vancomycin (1 g/l) from pregnancy-day 15 until delivery, where vancomycin-mixed drinking water was replaced with regular water.
+- 2 days after birth xx of the 26 pups were separated from the mother and received XX µl FvT solution or an equal amount of SM buffer (control treatment). The remaning xx of 26 pups remained with the mother for breastfeeding thoughout the study.
+- Pups separated from their mother were formula fed (FF) with a solution of XXXXX milk formulation (see materials) every 3 hours for 48 hours. (futher setup description see materials and methods).
+- All 26 pups survived the 48 hour study. On the final day of the study pups fasted for XX hours before given xx µl FITC Dextran (as per materials protocol). 
+- 2 hours after FITC administtion pups were euthanized by decapitation and blood collected in eppendorfs for analysis of serum FITC concentration. Intestinal samples were collected for gene expression assays, histological assessment, pro-inflmmatory cytokine analysis and gut microbiome sequencing. 
+
+* Gut permeability: 
+- We found the lowest concentration of serum FITC Dextran in the group treated with FF and Fvt (XXXX Xg/mL). This was lower than even the breastfed controls, which had the highest concentration of the three groups (**FIGURE**). 
+
+* Cytokine expression
+- High levels of XX cytokine was foudn in group XX.
+
+* Histological analysis
+- We found no significant changes in the mucin layer between the treatment group (Fvt) Fvt-Control (SM) or formula-feed control (VANCO-BF). The thickness of the stain was the same for all groups.
+* This supports the impression we got from the visual inspection of the intestines during sampling.
+
+* Gene expression 
+We standardized the gene expression to the control group and the house gene. However, we found statistically significant difference in expression of the house-gene, making the delta-delta measure bad. Comparing (on what other basis) in stead. 
+
+* Gut microbiome
+Differneces? 
 
 ## Discussion
+
+## Materials and methods
+Describe Pre-Exp 1-3 and knowledge gained from them. 
