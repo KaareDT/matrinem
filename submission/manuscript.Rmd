@@ -60,7 +60,7 @@ Contrary to our hypothesis, these mice had lower levels of intestinal permeabili
 
 ### Round 4
 - We treated XX mothers with Vancomycin (1 g/l) from pregnancy-day 15 until delivery, where vancomycin-mixed drinking water was replaced with regular water.
-- 2 days after birth xx of the 26 pups were separated from the mother and received XX µl FvT solution or an equal amount of SM buffer (control treatment). The remaning xx of 26 pups remained with the mother for breastfeeding thoughout the study.
+- 2 days after birth XX of the 26 pups were separated from the mother and received XX µl FvT solution or an equal amount of SM buffer (control treatment). The remaning xx of 26 pups remained with the mother for breastfeeding thoughout the study.
 - Pups separated from their mother were formula fed (FF) with a solution of XXXXX milk formulation (see materials) every 3 hours for 48 hours. (futher setup description see materials and methods).
 - All 26 pups survived the 48 hour study. On the final day of the study pups fasted for XX hours before given xx µl FITC Dextran (as per materials protocol). 
 - 2 hours after FITC administtion pups were euthanized by decapitation and blood collected in eppendorfs for analysis of serum FITC concentration. Intestinal samples were collected for gene expression assays, histological assessment, pro-inflammatory cytokine analysis and gut microbiome sequencing. 
@@ -75,18 +75,19 @@ Contrary to our hypothesis, these mice had lower levels of intestinal permeabili
 - The VANCO-FF (FvT) had lower/higer absolute levels of cytokine concentration compared to both VANCO-BF and VANCO-FF from Exp3. 
 - THis comparison is reasonable/unreasonable given the similarity/lack of similarity in response of the VANCO-BF groups from Exp3(XXX) and VANCO-FF (SM) from Exp 4(XXXX). 
 
-### Post experimental analyses. 
+### Post experimental analyses and Discussion of results 
 * Histological analysis - Mention and Discuss this after finishing the result section. 
 - Histological image analysis was performed after all trials had finished. 
 - We saw no degradation of mucin layer thickness in any of the pups. This supports the visial inspections of intestines that was made during sampling. 
 - We found no significant changes in the mucin layer between the treatment group (Fvt) Fvt-Control (SM) or formula-feed control (VANCO-BF). The thickness of the stain was the same for all groups.
 
 * Gene expression 
-We standardized the gene expression to the control group and the house gene. However, we found statistically significant difference in expression of the house-gene, making the delta-delta measure bad. Comparing (on what other basis) in stead. 
+
+We standardized the gene expression to the control group and the house gene. However, we found statistically significant difference in expression of the house-gene, making the delta-delta measure bad.
+
 
 * Gut microbiome
 
-Differneces? 
 
 ## Discussion
 
