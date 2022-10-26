@@ -11,7 +11,7 @@ editor_options:
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-```{r loading libraries}
+```{r loading libraries, message=FALSE}
 library(readxl)
 library(tidyverse)
 library(broom)
@@ -26,22 +26,6 @@ library(jtools)
 ```
 
 # MATRINEM - Attempts at creating a NEC mouse model
-
-## Preface
-
-## Introduction
-
-This thesis is about...
-
-## Background
-
-## Methods and Materials
-
-Prior to results are presented a short description of the studies conducted needs to be made.
-
-Experiment no. 4 was the goal, but before we could test our overall hypothesis we needed to find out which combination of antibiotics and feeding scheme would results in the most NEC-like phenotype.
-
-These research questions were investigated in 3 pre-experiments (PreExp 1-3), each with their own research questions.
 
 ### **Overview of all experiments**
 
@@ -150,7 +134,7 @@ names_of_cytokines <-unique(cytokines_1_long$cytokines)
 
 `r nrow(cytokines_1)` samples were available for analysis of concentrations of the proinflammatory cytokines `r names_of_cytokines`. Concentrations were measured in 1-cm sections of proximal/distal ileum tissue using MSD Mesoscale Kits. Distributions were assessed for normality with Shapiro-Wilk Normality Test (see table below), and plot of data were made to assess distributions visually:
 
-```{r echo=FALSE, fig.cap='Table:}
+```{r echo=FALSE, fig.cap='Table XX'}
 normality_result_1
 ```
 
