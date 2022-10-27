@@ -27,53 +27,15 @@ library(jtools)
 
 # MATRINEM - Attempts at creating a NEC mouse model
 
-### **Overview of all experiments**
-
-+-------------+-------------------------------------------------------------------------------+----------------------------------------------------------------+------------------------------------------------------------------------+-----------------------------------------------------------------+
-|             | PreExp 1                                                                      | PreExp 2                                                       | PreExp 3                                                               | NEC-FvT                                                         |
-+=============+===============================================================================+================================================================+========================================================================+=================================================================+
-| **Aim**     | To test feasibility of formula feeding with PICC line                         | Selectively targeting gram positive vs. gram negative bacteria | Testing if there is an interaction-effect with feeding and antibiotics | Combining reults from PreExp 1-3 into final experimental setup. |
-+-------------+-------------------------------------------------------------------------------+----------------------------------------------------------------+------------------------------------------------------------------------+-----------------------------------------------------------------+
-| Protocols   | Testing a broad spectrum antibiotics mix in combination with formula feeding. | Groups                                                         | Groups                                                                 | Groups                                                          |
-|             |                                                                               |                                                                |                                                                        |                                                                 |
-|             | 4 groups                                                                      |                                                                |                                                                        |                                                                 |
-|             |                                                                               |                                                                |                                                                        |                                                                 |
-|             | 1.  CON-BF                                                                    |                                                                |                                                                        |                                                                 |
-|             | 2.  CON-FF                                                                    |                                                                |                                                                        |                                                                 |
-|             | 3.  AB-BF                                                                     |                                                                |                                                                        |                                                                 |
-|             | 4.  AB-FF                                                                     |                                                                |                                                                        |                                                                 |
-+-------------+-------------------------------------------------------------------------------+----------------------------------------------------------------+------------------------------------------------------------------------+-----------------------------------------------------------------+
-| N           | 38 (32 survived)                                                              | 18                                                             | 32                                                                     | 26                                                              |
-+-------------+-------------------------------------------------------------------------------+----------------------------------------------------------------+------------------------------------------------------------------------+-----------------------------------------------------------------+
-
-### PreExp 1 - Feasibility Study
-
-#### **Rationale:**
-
-*Chen et al.*, showed that Maternal Antibiotics Treatment (**MAT**) resulted in mild NEC-like symptoms of mice offspring. We believed that MAT combined with formula feeding (**FF**) of offspring would result in a worsened phenotype - [even more NEC-like than either treatment on it's own.]{.underline}
-
-#### **Aim:**
-
-To test if it was possible to keep mice separated from the mother alive from postnatal day 3 and 48 hours onwards.
-
-#### **Research Questions:**
-
--   Can we keep offspring alive with formula feeding?
--   Will combining MAT with FF result in a more inflammatory intestine as measured by cytokine analysis in the ileum.
-
-Experiment 1 was a pilot to test whether it was possible to feed 3-day old mice with the PICC. The experimental setup followed the standard setup. Antibiotics was administered according to the description in Chen et al., though with a lower dose based on previous experiments. Our primary study objective was survival. Secondary objective was macroscopic evaluation of intestines for inflammation, intestinal distention and similar NEC-like symptoms. One preliminary hypothesis was a reduction in weight of offspring from antibiotics-treated mothers.
-
-**Results**:
-
 ```{r include=FALSE}
-preexp_1 <- read_excel("../data/processed/weight_development.xlsx") %>% 
+preexp_1 <- read_excel("data/processed/weight_development.xlsx") %>% 
   filter(exp_number == "1")
 
 ```
 
 ```{r}
 #__________Load in cytokine data for all experiments________
-cytokines_1 <- read_excel(path = "../data/processed/cytokines.xlsx") %>%  
+cytokines_1 <- read_excel(path = "data/processed/cytokines.xlsx") %>%  
   filter(exp_number == 1) %>% 
   filter(tissue == "ileum") %>% 
   mutate(
@@ -92,15 +54,17 @@ cytokines_1_long <- cytokines_1 %>%
   pivot_longer(cols = INFg:TNFa, 
                names_to = "cytokines", 
                values_to = "cytokine_concentration") %>% 
-  drop_na(cytokine_concentration)
+  filter(!cytokine_concentration == 0) %>% 
+  mutate(conc_adjusted4weight = cytokine_concentration/tissue_weight_mg)
 #___________________________________________________________
+
 ```
 
 ```{r}
 #___________ Check cytokine distribution for normality, filter significant ones _____________________
 normality_check <- cytokines_1_long %>% 
   group_by(cytokines) %>% 
-  shapiro_test(cytokine_concentration) %>% 
+  shapiro_test(conc_adjusted4weight) %>% 
   select(cytokines, p)
 #___________________________________________________________
 
@@ -111,13 +75,15 @@ non_normal_cytokines <- normality_check %>%
 normality_plot <- cytokines_1_long %>%
   filter(cytokines %in% non_normal_cytokines$cytokines ) %>% 
   ggplot(aes(x = group, 
-             y = cytokine_concentration,
+             y = log10(conc_adjusted4weight),
              color = group)) + 
+  geom_boxplot(outlier.shape = NA) + 
   geom_jitter() +
+  #scale_y_continuous(trans='log10') +
   facet_wrap(~ cytokines,
              scales = "free") + 
   labs(title = "Non-normally distributed cytokines (Shapiro-Wilk Normality Test, p < 0.05)",
-       y = "Concentration of cytokine in tissue (pg/mL)",
+       y = "Log10 scale - Conc. of cytokine (pg/mL) per mg tissue",
        x = "") +
   theme_bw()
 #___________________________________________________________
@@ -193,7 +159,7 @@ tbl1_gt
 plot_all_cytokines <- cytokines_1_long %>%
   #filter(!variables %in% "INFg") %>%  #Exclude any cytokines not wanted in the plot
 ggplot(aes(x = group, 
-           y = cytokine_concentration, 
+           y = conc_adjusted4weight, 
            fill = group)) + 
   geom_boxplot() +
   facet_wrap(~cytokines, 
