@@ -127,35 +127,33 @@ and to include further measures of intestinal dysfunction.
 - Un-adjusted for tissue weight there were no significant differences between the treatment groups. 
 
 #### Discussion of experimental results - Exp 2.
-- Directionality of change varied, with alternating over- and under-expression of various cytokines. As can be seen in [*Cytokine plot of signif results *] pups tended to group based on feeding-scheme, with both formula-fed groups being either suppressed og over-expressed together, compared with breastfed groups, irrespective of antibiotics treatment. 
-- This observation is supported by a a multiple linear regression analysis, evaluating the effects of MAT (AB or CON) and type of feed (BF of FF) separately and interactively. The analysis found statistically significant effects of formula feeding for REG_MODEL_CYTOKINES$TERM == TYPEOFFEED, with the greatest effect estimate of ESTIMATE$IL-6 , P-val$IL-6.
+- Weight development similar to Chen. 
+- Whether it was a result of growth restriction or shorter gestational age is difficult to determine. 
+- Chen et al. did not report whether dams were from the same day. 
+- Intestinal permeability response was different depending of type of antibiotics. 
+- Vancomycin decreased intestinal permeability whereas gentamicin increased it.
+  - This has been shown in Winstar rats before (Thulstrup 2015). 
+- Cytokine expression was most affected in the VANCO group. 
 
-- In summary, formula-feeding seemed to have greater effect on the inflammatory state of the pups than whether they were weened by antibiotics treated mothers. 
-- This is surprising given the findings of Chen et al., who used an identical protocol to our AB-BF vs. CON-BF (Maternal antibiotics treatment and weening with the mother for 7 days). They claim that MAT during pregnancy resulted in significant alterations in the intestinal microbiota. lower body weight at birth and on day 7, visible intestinal injury and inflammation and disruption of the intestinal barrier. 
-- Our initial analysis of weight and cytokine expression did not indicate a similar effect of MAT (evaluations of gut permeability, intestinal gene expression, histological analysis and gut microbial composition were conducted in later experiments). 
-- One possible explanation is an effect of dosage. While Chen et al., used a concentration of 1 g/l, we went with 0.5 g/l, based on experience from previous studies.
-- We therefore decided to increase the dosage to 1 g/l for subsequent experiments,
-and to include further measures of intestinal dysfunction.
-- We also decided to measure the birth weight of all pups, in addition to body weight at the beginning of the experiment (day 3) and end (day 5). 
+- In summary: 
 
 
 ### Experiment 3 - Interaction effects between antibiotics treatment and formula feeding
 
 #### Rationale:
-*Chen et al.*, showed that treatment with antibiotics during pregnancy(Maternal Antibiotics Treatment, **MAT**) "resulted" in mild NEC-like symptoms in the offspring. We tested the hypothesis that MAT combined with formula feeding (**FF**) would result in a worsened phenotype - [even more NEC-like than either treatment on it's own.]{.underline}
+Based on the results from Exp 2 it was difficult to ascertain which treatment was more likely to manifest in NEC like phenotype. 
+- Gentamicin had increased intestinal permeability the most. However, the greatest effect of cytokine expression was found with the vancomycin treatment. 
+- In addition to this divergence, the interaction effect found in Exp 1 suggested it was likely that combining MAT with formula feeding would yield different results. 
+- Therefore, we decided to increase the breeding population to allow for an experiment that combined both types of antibiotics with either formula-feeding or breastfeeding, for a total of 6 experimental groups.
 
 #### Aim: 
-- To test whether it was possible to keep mice alive from postnatal day 3 and 48 hours onwards, while being separated from the mother.
-- Whether combining a broad spectrum antibiotic with formula-feeding will result in NEC-like symptoms such as:
-- Visible signs of intestinal inflammation and / or greater levels of pro-inflammatory cytokines expressed in tissue or serum
+
 
 #### Conclusion:
-- Survival rate: xx of `r nrow(preexp_1)` (%)
-- Visaul inspection: no clear signs of intestinal inflammation
-- Cytokine expression: Statistically significant differences in the level of STATISTICAL-SIGNIF-CYTOKINE-NAMES. 
+ 
 
 #### Detailed description of Exp 3.
-- In round 3 we repeated the experimental setup with regards to MAT, adding either Vancomycin, Gentamicin or sterile water to the drinking water of pregnant "females" (use same word throughout(mothers)). We repeated the group-setup from PreExp  1 and  separated pups into breastfeeding or formula feeding, for a total of 6 groups (see overview table). 
+- In Exp 3 we repeated the experimental setup with regards to MAT, adding either Vancomycin, Gentamicin or sterile water to the drinking water of pregnant femailes. We repeated the group-setup from PreExp  1 and  separated pups into breastfeeding or formula feeding, for a total of 6 groups (see overview table). 
 - All pups survived the experiment and were included in the final analysis. 
 - 2 hours after FITC administtion pups were euthanized by decapitation and blood collected in eppendorfs for analysis of serum FITC concentration. Intestinal samples were collected for gene expression assays, histological assessment, pro-inflammatory cytokine analysis and gut microbiome sequencing.
 
