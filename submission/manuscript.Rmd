@@ -79,7 +79,7 @@ The following is a description of each experiment. An abridged version of each e
 - Directionality of change varied, with alternating over- and under-expression of various cytokines. As can be seen in [*Cytokine plot of signif results *] pups tended to group based on feeding-scheme, with both formula-fed groups being either suppressed og over-expressed together, compared with breastfed groups, irrespective of antibiotics treatment. 
 - This observation is supported by a a multiple linear regression analysis, evaluating the effects of MAT (AB or CON) and type of feed (BF of FF) separately and interactively. The analysis found statistically significant effects of formula feeding for REG_MODEL_CYTOKINES$TERM == TYPEOFFEED, with the greatest effect estimate of ESTIMATE$IL-6 , P-val$IL-6.
 
-#### Discussion of experimental results - Exp 1.
+#### Commentary and interpretation of results - Exp 1.
 - In summary, formula-feeding seemed to have greater effect on the inflammatory state of the pups than whether they were weened by antibiotics treated mothers. 
 - This is surprising given the findings of Chen et al., who used an identical protocol to our AB-BF vs. CON-BF (Maternal antibiotics treatment and weening with the mother for 7 days).
 - They claim that MAT during pregnancy resulted in significant alterations in the intestinal microbiota. lower body weight at birth and on day 7, visible intestinal injury and inflammation and disruption of the intestinal barrier. 
@@ -132,10 +132,9 @@ The following is a description of each experiment. An abridged version of each e
 
 *Cytokine expression*
 - Tissue weight-adjusted results of cytokine concentrations showed significant differences between the 3 groups for `r signif_cyto_exp2`. ### Rerun these experiments.
-- A statistically significant difference in the average weight of the intestinal biopsy was found ( p = `r tissue_weight_exp2$p.value`), with XXXX having the heaviest (`r tissue_weight_exp2_`) sample weights and XXXX having the lowest.
-- Un-adjusted for tissue weight there were no significant differences between the treatment groups. 
 
-#### Discussion of experimental results - Exp 2.
+
+#### Commentary and interpretation experimental results - Exp 2.
 - Weight development was now similar to the findings of Chen et al.
 - Whether it was a result of growth restriction or shorter gestational age is difficult to determine. 
 - Chen et al. did not report whether dams were from the same day. 
@@ -192,7 +191,8 @@ Based on the results from Exp 2 it was difficult to ascertain which treatment wa
 - INFg: significantly lower concentrations in all formula-fed pups compared with CON-BF.
 - KCGRO: Significantly greater levels in all formula-fed pups compared with CON-BF.
 
-#### Discussion of experimental results Exp 3:
+
+#### Commentary and interpretation experimental results Exp 3:
 - Intestinal permeability was by far the greatest in VANCO-FF, with levels of FITC-dex close to 10-fold increased in this group. 
 - In contrast, VANCO-BF was the group with the lowest measure of intestinal permeability, similar to the finding in exp 2.
 - Looking at **FIGURE CYTOKINES ROUND 3** shows how formula-fed groups systematically over- or underexpress compared to breastfed analimals, irrespective of type of antibiotic, indicating that the biggest determinant of cytokine variation was again formula feeding. 
@@ -214,7 +214,7 @@ Based on the results from Exp 2 it was difficult to ascertain which treatment wa
 
 ### Experiment 4 - FVT Trial
 
-#### Rationale:
+#### Rationale: **What was the actual rationale?**
 
 - Central to the development of NEC is an assumption of a gut microbial dysbiosis, which we tried to mimick by administering antibiotics prenatally. 
 - Results from exp 1-3 indicated that maternal antibiotics treatment had little effect in the context of breastfeeding, but when combined with formula-feeding was able to induce mild symptoms of intestinal inflammation.
@@ -225,49 +225,59 @@ Based on the results from Exp 2 it was difficult to ascertain which treatment wa
 - We hypothesized that any dysbiosis created by maternal antibiotics treatment could be mitigated with a follow-up administration of FVT prior to beginnig formula-feeding. 
 - If successful, the FVT-treated group would show fever intestinal injury scores compared with a non-FVT treated group. 
 - Previous experiments had shown that MAT in combination with breastfeeding had no effect on inflammatory markers and VANCO-BF thus acted as a healthy control to both formula-fed treatment groups.
-
+ **(The problem here is that formula is the only thing with an effect. A breastfed control only shows the effect of the formula)**
+ 
 #### Aim: 
 - To test whether signs of inflammation are reduced in pups treated with an FVT.
 - To test whether any reductions in symptoms can be explained with a manipulation of the microbial composition.
 
 #### Conclusion:
-
+- FVT treated pups showed similar intestinal permeability and pro-inflammatory cytokine concentrations as non-FVT-treated controls. 
+- An `r fold_increase_reg3g`-fold increase in expression of the `r REG3G` gene was found in the FVT group. 
 
 #### Detailed description of Exp 4.
-- We treated XX mothers with Vancomycin (1 g/l) from pregnancy-day 15 until delivery.
-- 2 days after birth XX of the 26 pups were separated from the mother and received XX µl FvT solution or an equal amount of SM buffer (control treatment). The remaning xx of 26 pups remained with the mother for breastfeeding throughout the study.
-- Pups separated from their mother were formula fed (FF) with a solution of XXXXX milk formulation (see materials) every 3 hours for 48 hours. (futher setup description see materials and methods).
-- All 26 pups survived the 48 hour study. On the final day of the study pups fasted for XX hours before given xx µl FITC Dextran (as per materials protocol). 
+- For the final experiment we repeated the previous breeding setup, assigning 36 females and 12 males for breeding. 
+- Only 5 of the 36 females became pregnant, and all were assigned to vancomycin (1 g/l) from pregnancy-day 15 until delivery, giving birth to `r nrow(preexp_4` pups on Saturday the XXth.
+- 2 days after birth pups were separated into breastfeeding or formula feeding. 
+- The formula-fed pups were further divided into a treatment and control group, receiving either 30 µl fecal virome filtrate (FVT) (0.01 mg farces/µL) or an equal amount of SM buffer (control) 1 hour prior to the first feeding. 
+- We repeated the FVT administration 24 hours later (09:00 day 2) for a total dose of 0.6 mg feces material per pup. 
+
 - 2 hours after FITC administtion pups were euthanized by decapitation and blood collected in eppendorfs for analysis of serum FITC concentration. Intestinal samples were collected for gene expression assays, histological assessment, pro-inflammatory cytokine analysis and gut microbiome sequencing. 
 
-*Gut permeability* 
-- We found the lowest concentration of serum FITC Dextran in the group treated with FVT (XXXX Xg/mL).
-- This was lower than even the breastfed controls, which had the highest concentration of the three groups (**FIGURE**). 
+*Intestinal permeability - FITC-Dextran administration* 
+- We repeated the protocol for FITC-administration, separating pups from mothers at 08:00 and dosing at 11:00.
+- The FVT and FVT-control (SM) had similar permeability scores. 
+- Compared with the vancomycin-treated formula-fed pups from experiment 3, there were no significant differences **Figure X**. 
+- The breastfed pups did, however, have significantly higher levels compared with all other breastfed pups.
 
 *Cytokine expression*
-- Only TNFa was significantly different in Exp 4, with greater level in the FVT-treated group (XXX), compared to both VANCO-BF and VANCO-FF (SM) (XXX and XXXX respectively). 
+- We found significant differences in concentrations of TNFa in Exp 4, with greater level in the FVT-treated group (XXX), compared to both VANCO-BF and VANCO-FF (SM) (XXX and XXXX respectively). 
+- This is in contrast experiment 3, where differences between VANCO-BF and VANCO-FF found significant differences for XXXCYtokinesXXX.
+OR: - This is similar to the findings of experiment 3, where no differences between VANCO-BF and VANCO-FF were found either.  
 
 *Gene expression*
-- We standardized the gene expression to the control group and the house gene. 
-- However, we found statistically significant difference in expression of the house-gene, making the delta-delta measure bad.
+- qPCR analyzis of intestinal samples found statistically significant differences in the level of XXXSIGNIFICANT_GENESXXX expression between groups with the delta-delta method (reformulate).
+- However, a difference in expression of the reference gene between the FVT and breastfed control was observed. this difference was statistically significant, invalidating the assumption of *equal baseline expression.*(reformulate)
+- Comparing the groups on the basis of (SOMEHTING ELSE THAN DELTA DELTA) found a `r fold_increase_reg3g`-fold increased expression of the `r REG3G` gene in the FVT groups. 
 
+#### Commentary and interpretation
+- FVT-treatmed did not seem to change the intestinal permeability. 
+- It is possible that something went wrong with the VANCO-BF group, given FITC-concentration was `r mean(fitc_level_exp4$bf`, which is 4-5 times higher than VANCO-BF groups on identical protocols in Exp 2 `r mean(fitc_level_exp2$bf` and 3 `r mean(fitc_level_exp3$bf`. Compared with theses levels the development looks more biologically reasonable. **FIGURE of EXP4 with DIFFERENT CONTROL GROUP**
+- The level of pro-inflammatory cytokines were the same in the FVT and SM groups, again indicating a lack of efficacy of the FVT treatment. 
 
-#### Discussion of results.
-- FVT and SM showed lower intestinal permeability than breastfed controls.
-- It is possible that something went wrong with the VANCO-BF group, since their the FITC-concentration was `r mean(fitc_level_exp4$bf`, which is 4-5 times higher than VANCO-BF groups on identical protocols in Exp 2 `r mean(fitc_level_exp2$bf` and 3 `r mean(fitc_level_exp3$bf`. Compared with theses levels the development looks more biologically reasonable. **FIGURE of EXP4 with DIFFERENT CONTROL GROUP**
-- It is also possible that the assay doesn't work. 
+- Summary: The FVT treatment did not seem to have an effect.
 
-- Summary
-- 
 
 ### Post experimental analyses and Discussion of results 
-* Histological analysis - Mention and Discuss this after finishing the result section. 
-- Histological image analysis was performed after all trials had finished. 
-- We saw no degradation of mucin layer thickness in any of the pups. This supports the visial inspections of intestines that was made during sampling. 
-- We found no significant changes in the mucin layer between the treatment group (Fvt) Fvt-Control (SM) or formula-feed control (VANCO-BF). The thickness of the stain was the same for all groups.
 
+- Histological image analysis was performed after all experiments had finished. 
+- We inspected the morphology of the ileum and colon, and visually assessed thickness of the mucin layers.
+- Analyzing AB-PAS stains for mucin-stained tissue to the total area, showed no differences between any treatment groups. 
+- Formula-fed and breastfed pups were slightly different, irrespective of antibiotics treatment, whereas there were no observable differences between antibiotic treatments. 
+- These findings supports the visual inspections of intestines made during sampling, where no signs of inflammation were detected.
+- *Images of intestines*
 
-* Gut microbiome
+* Gut microbiome composition
 
 
 ## Discussion
