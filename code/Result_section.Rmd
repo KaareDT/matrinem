@@ -2,7 +2,7 @@
 title: "Results section"
 author: "Kaare"
 date: "18/10/2022"
-output: html_document
+output: pdf_document
 editor_options: 
   chunk_output_type: console
 ---
@@ -17,17 +17,17 @@ library(tidyverse)
 library(broom)
 library(ggpubr)
 #library(AICcmodavg)
-library(visdat)
+#library(visdat)
 library(rstatix)
 library(gt)
 library(gtsummary)
 library(patchwork)
-library(jtools)
+#library(jtools)
 ```
 
 # MATRINEM - Attempts at creating a NEC mouse model
 
-```{r include=FALSE}
+```{r exp1-weight, include=FALSE}
 preexp_1 <- read_excel("data/processed/weight_development.xlsx") %>% 
   filter(exp_number == "1")
 
@@ -35,9 +35,7 @@ preexp_1 <- read_excel("data/processed/weight_development.xlsx") %>%
 
 ```{r}
 #__________Load in cytokine data for all experiments________
-cytokines_1 <- read_excel(path = "data/processed/cytokines.xlsx") %>%  
-  filter(exp_number == 1) %>% 
-  filter(tissue == "ileum") %>% 
+cytokines <- read_excel(path = "data/processed/cytokines.xlsx") %>% 
   mutate(
     group = recode_factor(  #Change the order of the groups to desired plot order
       group,
@@ -46,6 +44,11 @@ cytokines_1 <- read_excel(path = "data/processed/cytokines.xlsx") %>%
       "AB-BF"= "AB-BF",
       "AB-FF"= "AB-FF"
       ))
+
+cytokines_1 <- cytokines %>%  
+  filter(exp_number == 1) %>% 
+  filter(tissue == "ileum")
+  
 #___________________________________________________________
 
 
@@ -55,7 +58,7 @@ cytokines_1_long <- cytokines_1 %>%
                names_to = "cytokines", 
                values_to = "cytokine_concentration") %>% 
   filter(!cytokine_concentration == 0) %>% 
-  mutate(conc_adjusted4weight = cytokine_concentration/tissue_weight_mg)
+  mutate(cytokine_conc_adjust_4_weight = cytokine_concentration/tissue_weight_mg)
 #___________________________________________________________
 
 ```
@@ -64,7 +67,7 @@ cytokines_1_long <- cytokines_1 %>%
 #___________ Check cytokine distribution for normality, filter significant ones _____________________
 normality_check <- cytokines_1_long %>% 
   group_by(cytokines) %>% 
-  shapiro_test(conc_adjusted4weight) %>% 
+  shapiro_test(cytokine_conc_adjust_4_weight) %>% 
   select(cytokines, p)
 #___________________________________________________________
 
@@ -75,7 +78,7 @@ non_normal_cytokines <- normality_check %>%
 normality_plot <- cytokines_1_long %>%
   filter(cytokines %in% non_normal_cytokines$cytokines ) %>% 
   ggplot(aes(x = group, 
-             y = log10(conc_adjusted4weight),
+             y = log10(cytokine_conc_adjust_4_weight),
              color = group)) + 
   geom_boxplot(outlier.shape = NA) + 
   geom_jitter() +
@@ -159,7 +162,7 @@ tbl1_gt
 plot_all_cytokines <- cytokines_1_long %>%
   #filter(!variables %in% "INFg") %>%  #Exclude any cytokines not wanted in the plot
 ggplot(aes(x = group, 
-           y = conc_adjusted4weight, 
+           y = cytokine_conc_adjust_4_weight, 
            fill = group)) + 
   geom_boxplot() +
   facet_wrap(~cytokines, 
