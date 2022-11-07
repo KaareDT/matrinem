@@ -32,28 +32,23 @@ options(tinytex.verbose = TRUE)
 
 \pagenumbering{gobble}
 
-```{r uni_logo, echo=F, out.width="95%"}
-knitr::include_graphics("img/sund.pdf")
+\begin{centering}
+```{r uni-logo-top, echo=F, out.width="80%"}
+knitr::include_graphics("img/sund.png")
 ```
 
-\newpage
-
-\begin{centering}
-
-\vspace{1cm}
+\Large
+{\bf The University Of Copenhagen}
 
 \Large
-{\bf The University Of Edinburgh}
-
-\Large
-{\bf School Of Geosciences}
+{\bf Factuly of Health}
 
 \vspace{1cm}
 
 \Large
 
 \doublespacing
-{\bf COMPARISON OF TOP-DOWN AND BOTTOM-UP APPROACHES ON SPECIFIC LEAF AREA PATTERNS, \\AT GLOBAL, LATITUDINAL, AND BIOME SCALES}
+{\bf MATERNAL ANTIBIOTICS TREATMENT AND FORMULA FEEDING \\ATTEMPTS AT CREATING A NEC MOUSE MODEL}
 
 \vspace{1 cm}
 
@@ -65,16 +60,20 @@ By
 
 \Large
 
-{\bf ANNA CHIRUMBOLO}
+{\bf KAARE D. TRANÆS}
 
 \vspace{1.5 cm}
 
-in partial fulfilment of the requirement \\for the degree of BSc with Honours \\in Ecological and Environmental Sciences
+Master thesis project \\MSc Human Biology \\SUND
 
 \vspace{1.5 cm}
 
 \normalsize
 mm yy
+
+```{r uni-logo-bottom, echo=F, out.width="60%"}
+knitr::include_graphics("img/absalon_watermark.png")
+```
 
 \end{centering}
 
@@ -128,8 +127,8 @@ no more than 250 words for the abstract
 
 \newpage
 
-```{r results, child= 'results.Rmd'}
-```
+#```{r results, child= 'results.Rmd'}
+#```
 
 \newpage
 

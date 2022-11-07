@@ -25,7 +25,7 @@ library(patchwork)
 #library(jtools)
 ```
 
-# MATRINEM - Attempts at creating a NEC mouse model
+#EXP1
 
 ```{r exp1-weight, include=FALSE}
 preexp_1 <- read_excel("data/processed/weight_development.xlsx") %>% 
