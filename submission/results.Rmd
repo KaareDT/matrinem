@@ -1,0 +1,116 @@
+---
+title: ''
+output: pdf_document
+---
+# Results
+
+```{r load libraries, include = F}
+library(knitr)  # for dynamic report generation
+library(kableExtra) # to build complex HTML or 'LaTex' tables
+library(readxl)
+library(tidyverse)
+library(broom)
+library(ggpubr)
+library(patchwork)
+```
+
+
+
+```{r exp1-weight, include=FALSE}
+#____Load overview of sample IDs______ 
+pups <- read_excel("../data/processed/weight_development.xlsx") 
+
+#____ Separate into experimental rounds ____#
+preexp_1 <- pups %>% 
+  filter(exp_number == "1")
+
+exp1_survived <- preexp_1 %>% 
+  filter(!is.na(bodyweight_baseline_plus_48h)) %>% 
+  nrow()
+#____ ____#
+```
+
+```{r exp1-groups, include=FALSE}
+#____Separate into groups ______ 
+AB_FF <- nrow(preexp_1 %>% 
+  filter(group2 == "AB-FF")) 
+
+AB_BF <- nrow(preexp_1 %>% 
+  filter(group2 == "AB-BF")) 
+
+CON_FF <- nrow(preexp_1 %>% 
+  filter(group2 == "CON-FF")) 
+
+CON_BF <- nrow(preexp_1 %>% 
+  filter(group2 == "CON-BF")) 
+#____ ____#
+
+```
+The main goal of this thesis project was to create a NEC mouse model by combining Maternal Antibiotics Treatment with Formula-Feeding.
+This hypothesis was tested in a series of experiments (Exp 1-4), each successive experiment building on the findings from the former.
+The following is a description of each experiment.
+An abridged version of each experiment is provided, followed by a detailed description of experimental setup and results.
+
+```{r protocols, echo = FALSE, out.height="40%", fig.show='hold', fig.align="center",  fig.cap="Experimental protocols"}
+
+include_graphics("../results/round_1/Table cytokines round 1.png")
+```
+
+\newpage
+
+## Exp 1: Model feasibility
+
+### Rationale:
+
+-   *Chen et al.*, showed that treatment with antibiotics during pregnancy(Maternal Antibiotics Treatment, **MAT**) "resulted" in mild NEC-like symptoms in the offspring.
+-   XXX *[Find paper]* found formula-feeding to be damaging to the intestine.
+-   One of the primary causal factors of NEC is formula-feeding (paper on what is thought to cause NEC).
+-   We tested the hypothesis that MAT combined with formula feeding (**FF**) would result in a worsened phenotype - [even more NEC-like than either treatment on it's own.]{.underline}
+
+### Aim:
+
+-   To test whether it was possible to keep mice alive from postnatal day 3 and 48 hours onwards, while being separated from the mother.
+-   Whether combining a broad spectrum antibiotic with formula-feeding will result in NEC-like symptoms such as:
+-   Visible signs of intestinal inflammation and / or greater levels of pro-inflammatory cytokines expressed in tissue or serum
+
+### Conclusion:
+
+-   Survival rate: `r exp1_survived` of `r nrow(preexp_1)`(`r (exp1_survived / nrow(preexp_1))*100`%)
+-   Visual inspection: no clear signs of intestinal inflammation
+-   Cytokine expression: Statistically significant differences in the level of STATISTICAL-SIGNIF-CYTOKINE-NAMES.
+
+### Detailed description of Exp 1. **Date of exp**
+
+*Antimals and experimental setup* \\
+- The experimental setup has been described in detail in the "Animal experimental setup" methods section. Detials specific for Exp-1 are outlined below. \\
+- Six male and 18 female C57BL/6N mice were co-housed for 24 hours in 6 cages (1 male + 3 female each).
+- Two weeks after mating, pregnant females were separated evenly into maternal antibiotic treatment (MAT) and water-only controls (CON).
+- Antibiotics (Gentamicin, Vancomycin, Neomycin, and Ampicillin (all 0.5 g/L)) were mixed into the drinking water of the MAT mice while controls received water only.
+- Antibiotic treatment commenced on gestational day 15 and continued until delivery.
+- Each mother was housed with her offspring in separate cages during the first 2 days after birth.
+-   On day 3, mice from water or antibiotics treated mothers were separated and assigned to either formula feeding (FF) or breastfeeding (BF) forming four experimental groups: AB + formula-feeding (AB-FF, N = `r AB_FF` ) AB + breastfeeding (AB-BF, N = `r AB_BF` ), Water + formula-feeding (CON-FF, N = `r CON_FF` ), and CON + breastfeeding (CON-BF, N = `r CON_BF` ).
+-   Formula-feeding was performed as per METHODS AND MATERIALs.
+    In Exp-1 we administered 0.08 ml formula for pups over 2g, and 0.06 for pups less 2g every 3 hours throughout the entire study.
+  In later experiments this dose was changed, and feeding intervals were increased to every 4 hours between midnight and 08 AM. \\
+- `r exp1_survived` of `r nrow(preexp_1)` pups survived the treatments.
+- Those that did not survive were euthanize because of esophageal perforation during feeding.
+- After fine-tuning of the feeding methods we were able to feed the pups without further harm.
+- We never had to euthanize a pup that reached our humane endpoints, since all the surviving pups were in generally good shape.
+- While significantly lighter than their breastfed controls, all pups increased their bodyweight during the experiment, attesting to the efficacy of our feeding regiment.
+- The pups were physically active and responded to changes in light and physical stimuli.
+- Skin color remained bright purple and fur development was visible throughout the experiment.
+- No signs of intestinal inflammation were evident from the visual inspection of intestines during sampling. Our subjective observation of the intestines were small degrees of bloating in formula-fed pups.
+
+```{r exp1-cytokines, include=FALSE}
+#____Load cytokine data______ 
+cytokines <- read_excel("../data/processed/weight_development.xlsx") 
+
+#____ Separate into experimental rounds ____#
+preexp_1 <- pups %>% 
+  filter(exp_number == "1")
+
+exp1_survived <- preexp_1 %>% 
+  filter(!is.na(bodyweight_baseline_plus_48h)) %>% 
+  nrow()
+#____ ____#
+```

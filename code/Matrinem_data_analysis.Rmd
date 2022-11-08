@@ -28,41 +28,41 @@ library(patchwork)
 library(jtools)
 ```
 
-# MATRINEM - Attempts at creating a NEC mouse model
-
-## The research questions
-
-Experiment no. 4 was the goal, but before we could test our overall hypothesis we needed to find out which combination of antibiotics and feeding scheme would results in the most NEC-like phenotype.
-
-These research questions were investigated in 3 pre-experiments (PreExp 1-3), each with their own research questions.
-
-### **Overview of all experiments**
-
-+-----------+-------------------------------------------------------------------------------+----------+----------+---------+
-|           | PreExp 1                                                                      | PreExp 2 | PreExp 3 | NEC-FvT |
-+===========+===============================================================================+==========+==========+=========+
-| **Aim**   | To test feasibility of formula feeding with PICC line                         |          |          |         |
-+-----------+-------------------------------------------------------------------------------+----------+----------+---------+
-| Protocols | Testing a broad spectrum antibiotics mix in combination with formula feeding. |          |          |         |
-|           |                                                                               |          |          |         |
-|           | 4 groups                                                                      |          |          |         |
-|           |                                                                               |          |          |         |
-|           | 1.  CON-BF                                                                    |          |          |         |
-|           | 2.  CON-FF                                                                    |          |          |         |
-|           | 3.  AB-BF                                                                     |          |          |         |
-|           | 4.  AB-FF                                                                     |          |          |         |
-+-----------+-------------------------------------------------------------------------------+----------+----------+---------+
-| N         | 38 (32 survived)                                                              |          |          |         |
-+-----------+-------------------------------------------------------------------------------+----------+----------+---------+
-
 ### PreExp 1 - Feasibility Study
 
 #Load in the data
+```{r exp1-weight, include=FALSE}
+#____Load overview of sample IDs______ 
+pups <- read_excel("data/processed/weight_development.xlsx") 
 
-```{r include=FALSE}
-preexp_1 <- read_excel("data/processed/weight_development.xlsx") %>% 
-  filter(exp_number == "1") 
+#____ Separate into experimental rounds ____#
+preexp_1 <- pups %>% 
+  filter(exp_number == "1")
+
+exp1_survived <- preexp_1 %>% 
+  filter(!is.na(bodyweight_baseline_plus_48h)) %>% 
+  nrow()
+#____ ____#
 ```
+
+```{r exp1-groups}
+#____Separate into groups ______ 
+AB_FF <- nrow(preexp_1 %>% 
+  filter(group2 == "AB-FF")) 
+
+AB_BF <- nrow(preexp_1 %>% 
+  filter(group2 == "AB-BF")) 
+
+CON_FF <- nrow(preexp_1 %>% 
+  filter(group2 == "CON-FF")) 
+
+CON_BF <- nrow(preexp_1 %>% 
+  filter(group2 == "CON-BF")) 
+#____ ____#
+
+```
+
+Survival rate: `r exp1_survived` of `r nrow(preexp_1)`(`r (exp1_survived / nrow(preexp_1))*100`%)
 
 ```{r}
 #__________Load in cytokine data for all experiments________
@@ -89,18 +89,6 @@ cytokines_1_long <- cytokines_1 %>%
 #___________________________________________________________
 ```
 
-#### **Rationale:**
-
-*Chen et al.*, showed that Maternal Antibiotics Treatment (**MAT**) resulted in mild NEC-like symptoms of mice offspring. We believed that MAT combined with formula feeding (**FF**) of offspring would result in a worsened phenotype - [even more NEC-like than either treatment on it's own.]{.underline}
-
-#### **Aim:**
-
-To test if it was possible to keep mice separated from the mother alive from postnatal day 3 and 48 hours onwards.
-
-#### **Research Questions:**
-
-##### Can we keep offspring alive with formula feeding?
-
 `r nrow(preexp_1)` mice were born to 6 different mothers. Of these 32 survived and were included in the analysis. After fine-tuning the feeding method we we able to successfully feed all surviving (32) mice every 3 hours for 2 days (48 hours).
 
 ##### Will MAT and FF affect levels of inflammatory cytokines in ileum tissue?
@@ -109,8 +97,7 @@ To test if it was possible to keep mice separated from the mother alive from pos
 #___________ Check cytokine distribution for normality, filter significant ones _____________________
 normality_check <- cytokines_1_long %>% 
   group_by(cytokines) %>% 
-  shapiro_test(cytokine_concentration) %>% 
-  select(cytokines, p)
+  shapiro_test(cytokine_concentration) 
 #___________________________________________________________
 
 non_normal_cytokines <- normality_check %>% 
