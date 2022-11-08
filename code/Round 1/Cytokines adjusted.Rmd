@@ -116,7 +116,7 @@ log10_shapiro_failed <- cytokines_long %>%
   shapiro_test(values) %>% 
   filter(p < 0.05)
 
-#Density plots. Works
+#Density plots to show distribution of cytokines
 histogram <- cytokines_long %>% 
   filter(exp_number == 1) %>% 
   filter(tissue == "ileum") %>%
@@ -124,17 +124,17 @@ histogram <- cytokines_long %>%
   drop_na(values) %>% 
   ggplot(aes(x = values, fill = group)) + 
   geom_density() +
-  facet_wrap(~ variables,
+  facet_wrap(~ variables, ncol = 2,
              scales = "free")
 
 log10_histogram <- cytokines_long %>% 
   filter(exp_number == 1) %>% 
   filter(tissue == "ileum") %>%
   filter(variables != "INFg") %>% 
-  drop_na(adjusted_values) %>% 
-  ggplot(aes(x = log10(adjusted_values), fill = group)) + 
+  drop_na(values) %>% 
+  ggplot(aes(x = log10(values), fill = group)) + 
   geom_density() +
-  facet_wrap(~ variables,
+  facet_wrap(~ variables, ncol = 2,
              scales = "free")
 
 #Jitter plots. Works
@@ -255,10 +255,8 @@ ggplot(aes(x = group,
     legend.background = element_rect(fill="white")) + # Change legend box background color
   scale_fill_brewer(palette="Set1")
 
-ggsave(filename = "exp1_cytokines.png",width = 2.14, height = 1.51, dpi = 300)
-
-ggsave('../../exports/exp1_cytokines.png',
-       plot_all_cytokines, scale =  width = 10, height = 16, units = "cm")
+#ggsave('../../exports/exp1_cytokines.png',
+     #  plot_all_cytokines,  width = 400, height = 600, units = "px")
   
 all_cytokines_patch <- plot_all_cytokines + plot_annotation (
   title = 'Cytokine expression',
@@ -280,8 +278,9 @@ These cytokines are plottet below:
 #tbl1_p contains cytokines with significant changes
 
 signif_cytokines <- cytokines_long %>%
+  filter(exp_number == "1") %>% 
   filter(tissue == sample_tissue) %>% 
-  filter(variables %in% tbl1_p$`**Groups**`) %>%  #Exclude any cytokines not wanted in the plot
+  filter(variables %in% tbl1_p$Cytokines) %>%  #Exclude any cytokines not wanted in the plot
 ggplot(aes(x = group, 
            y = values, 
            fill = group)) + 
@@ -290,9 +289,9 @@ ggplot(aes(x = group,
                    method = "wilcox.test", ref.group = "CON-BF",
                    label.y.npc = 0.55) +
   stat_compare_means(
-    aes(label = paste0("Kruskal-Wallis \n p = ", ..p.format..)),
-    label.y.npc = 0.9,
-    label.x.npc = 0.5) +
+    aes(label = paste0("Global p = ", ..p.format..)),
+    label.y.npc = 0.75,
+    label.x.npc = 0.3) +
   facet_wrap(~variables, 
              scales = 'free', 
              nrow = 3,
@@ -315,11 +314,11 @@ ggplot(aes(x = group,
   scale_fill_brewer(palette="Set1")
   
 signif_cytokines_patch <- signif_cytokines + plot_annotation (
-  title = 'Cytokine expression',
-  subtitle = 'Statistically significant changes',
-  tag_levels = 'A',
+  #title = 'Cytokine expression',
+  #subtitle = 'Statistically significant changes',
+  #tag_levels = 'A',
   caption = 'CON = Water, AB = Antibiotics, BF = Breast-Feeding, FF = Formula-Feeding. \n
-  Pairwise comparisons with CON-BF using wilcoxon test',
+  Pairwise comparisons against CON-BF, wilcoxon test',
   theme = theme(plot.title = element_text(hjust = 0.5, size=14, face="bold"),
                 plot.subtitle = element_text(hjust = 0.5, face = "bold.italic"),
                 plot.caption = element_text(hjust = 0.5, size=7,face = "bold")))
