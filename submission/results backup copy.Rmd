@@ -79,7 +79,7 @@ include_graphics("../results/round_1/Table cytokines round 1.png")
 -   Visual inspection: no clear signs of intestinal inflammation
 -   Cytokine expression: Statistically significant differences in the level of STATISTICAL-SIGNIF-CYTOKINE-NAMES.
 
-### Detailed description of Exp 1. **Date of exp**
+### Detailed description of Exp 1. 
 
 *Animals and experimental setup* \n 
 The general experimental setup has been described in the "Animal experimental setup" methods section. Details specific for Exp-1 are outlined below. \n
