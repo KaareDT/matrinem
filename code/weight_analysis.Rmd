@@ -12,6 +12,9 @@ knitr::opts_chunk$set(echo = TRUE)
 library(rstatix)
 library(ggpubr)
 library(patchwork)
+library(tidyverse)
+library(readxl)
+library(broom)
 ```
 
 #___Analysis of the weight development in the MARTRINEM study___
@@ -33,6 +36,52 @@ data <- read_excel("data/processed/weight_development.xlsx") %>%
   #%>%
   # #mutate(across(where(is_character),as_factor))
 ```
+
+
+#_bodyweight in all experimets._
+```{r}
+startweight <- data %>% 
+  filter(exp_number %in% c("1", "2", "3","4")) %>% 
+  filter(time %in% c("day_3", "day_5")) %>%
+  drop_na(bodyweight) %>% 
+  group_by(exp_number, type_of_feed, maternal_treatment, group, time) %>% 
+  summarise(startweight = mean(bodyweight),
+            sd = sd(bodyweight))
+
+startweight %>% 
+  filter(exp_number == "2") %>% 
+  arrange(time)
+```
+
+#_birthweight in exp 2_
+```{r}
+birthweight <- data %>% 
+  filter(exp_number %in% "2") %>% 
+  filter(time %in% c("day_0", "day_1", "day_2")) %>%
+  drop_na(bodyweight) %>% 
+  group_by(exp_number, maternal_treatment, time) %>% 
+  summarise(birthweight = mean(bodyweight),
+            sd = sd(bodyweight))
+
+lm_birthweight <- data %>%  #LM for effect of gestational age on offspring birthweight. 
+  filter(exp_number %in% "2") %>% 
+  filter(time %in% c("day_0", "day_1", "day_2")) %>%
+  drop_na(bodyweight) %>% 
+  filter(time == "day_0") %>% 
+  mutate(gestation_age = if_else(maternal_treatment == "CON", 21,20)) %>% 
+  do(lm(bodyweight ~ gestation_age,.) %>% tidy)
+lm_birthweight
+
+data %>% # ANOVA for effect of gestational age on offspring birthweight. 
+  filter(exp_number %in% "2") %>% 
+  filter(time %in% c("day_0", "day_1", "day_2")) %>%
+  drop_na(bodyweight) %>% 
+  filter(time == "day_0") %>% 
+  mutate(gestation_age = if_else(maternal_treatment == "CON", 21,20)) %>% 
+  rstatix::anova_test(., bodyweight ~ gestation_age)
+  
+```
+
 
 #_Birthweight of offspring, experiment 2_
 ```{r}
@@ -76,14 +125,11 @@ birth_weight_patch <- (exp2.bw.density + exp2.bw.col) + plot_annotation(
 birth_weight_patch
 #ggsave("../Results/Weight/Figure_1_Birthweights.png", birth_weight_patch)
 
-#add gt table with group results
-
 
 ```
 
+#_Weight development during experiments_
 ```{r eval=FALSE, include=FALSE}
-### Weight development during experiments   ########### 
-
 bw_development_feed <- data %>% 
 filter(exp_number %in% c("1","3","4")) %>% 
 filter(time %in% c("day_3", "day_5")) %>%

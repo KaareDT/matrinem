@@ -30,35 +30,75 @@ Required data structure is a wide tibble (column headers = variables, samples an
 
 This script is per default set to handle ileum and serum expression, although any tissue will work. This will just require resetting of the "tissue"-variable.
 
-# Cytokines for experiment 1. - Tissue weight adjusted.
+# Cytokines for experiments  - Tissue weight adjusted.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE)
+```
+
+```{r load packages, include=FALSE}
+library(readxl) 
+library(tidyverse)
+library(gt)
+library(gtsummary)
+library(broom)
+library(rstatix)
+library(knitr)
+library(patchwork)
+library(ggpubr)
+```
+
+# Introduction to script
+
+This script is useful for analyzing cytokine expression from MSD Mesoscale assays. It is currently optimized for the 'Pro-inflammatory Vplex 10 Mouse kit', analysing the cytokines INFg, IL_10, IL_12p70, IL_1b, IL_2, IL_4,IL_5, IL_6, KCGRO, and TNFa.
+
+Required data structure is a wide tibble (column headers = variables, samples and values = rows).
+
+This script is per default set to handle ileum and serum expression, although any tissue will work. This will just require resetting of the "tissue"-variable.
+
+# Cytokines for experiment 2.
 
 ### Basic data structure and results table.
 
-First you load the data and check the structure. Make sure cytokine concentrations are all numeric (<dbl>). If not, mutate non-numeric columns with mutate_if(is_character).  
+First you load the data and check the structure. Make sure cytokine concentrations are all numeric (<dbl>). If not, mutate non-numeric columns with mutate_if(is_character).
+
 ```{r load data, echo=FALSE}
 # Import dataset
 cytokines <- read_excel("data/processed/cytokines.xlsx")
+```
 
-tissue_weight_destribution <- cytokines %>%   # run normality test on tissue weight
-  filter(tissue == "ileum") %>% 
-  filter(exp_number == "1") %>% 
+Set the tissue type and experimental round here: 
+
+```{r load data and set tissue type, include=FALSE}
+#set tissue type
+sample_tissue <- "ileum"
+study_round <- "2"
+```
+
+```{r load data, echo=FALSE}
+cytokines %>%   # run normality test on tissue weight
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
   group_by(group) %>% 
   shapiro_test(tissue_weight_mg) 
 
-# group  variable         statistic      p
-#   <chr>  <chr>                <dbl>  <dbl>
-# 1 AB-BF  tissue_weight_mg     0.917 0.404 
-# 2 AB-FF  tissue_weight_mg     0.953 0.686 
-# 3 CON-BF tissue_weight_mg     0.771 0.0138
-# 4 CON-FF tissue_weight_mg     0.812 0.144 
-
+# group    variable         statistic      p
+ # <chr>    <chr>                <dbl>  <dbl>
+# CON-BF   tissue_weight_mg     0.833 0.197 
+#GENTA-BF tissue_weight_mg     0.748 0.0120
+#VANCO-BF tissue_weight_mg     0.833 0.0861
 #look at tissue weight distribution
-cytokines %>% 
-  filter(tissue == "ileum") %>% 
-  filter(exp_number == "1") %>% 
+
+cytokines %>%       #Weight of tissue samples
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
   ggplot(aes(x = group, y = tissue_weight_mg, fill = group)) + 
   geom_boxplot() +
-  geom_point()
+  geom_point() +
+  labs(
+    title = "Tissue weight of intestinal samples, experiment 2"
+  )
 ```
 <!-- Looks fine. Go ahead and  adjust-->
 
@@ -80,7 +120,7 @@ cytokines_adjusted <- cytokines %>%
   mutate(values = if_else(tissue == "ileum", values/tissue_weight_mg, values)) %>% #Adjust for tissue weight
   pivot_wider(
     id_cols = c(
-      sample_id,exp_number, group, received_antibiotics,maternal_treatment, tissue,tissue_weight_mg),
+      sample_id,exp_number, group, received_antibiotics,maternal_treatment, type_of_feed, tissue,tissue_weight_mg),
     names_from = variables, 
     values_from = values)
 
@@ -93,22 +133,31 @@ cytokines_long <- cytokines_adjusted %>%
   )
 ```
 
+
+
 Check for data distribution. 
 
 ```{r visualize data, eval=FALSE, include=FALSE}
-#normality_check 
-shapiro_failed <- cytokines_long %>% 
-  filter(exp_number == 1) %>% 
-  filter(tissue == "ileum") %>%
-  filter(variables != "INFg") %>% 
+cytokines_long %>%                       #normality_check  of cytokine distributions
+  filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
+  #filter(variables != "INFg") %>% 
   drop_na(values) %>% 
   group_by(variables, group) %>% 
   shapiro_test(values) %>% 
   filter(p < 0.05)
 
-log10_shapiro_failed <- cytokines_long %>% 
-  filter(exp_number == 1) %>% 
-  filter(tissue == "ileum") %>%
+#Non-normal distributions: 
+#  group    variables variable statistic      p
+#  <fct>    <chr>     <chr>        <dbl>  <dbl>
+# VANCO-BF IL-1b     values       0.795 0.0363
+# GENTA-BF IL-4      values       0.777 0.0240
+
+
+#log10 transformed shapiro_test - failed variables
+cytokines_long %>% 
+ filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
   filter(variables != "INFg") %>% 
   drop_na(values) %>% 
   mutate(values = log10(values)) %>% 
@@ -116,10 +165,14 @@ log10_shapiro_failed <- cytokines_long %>%
   shapiro_test(values) %>% 
   filter(p < 0.05)
 
+#  group    variables variable statistic       p
+#  <fct>    <chr>     <chr>        <dbl>   <dbl>
+# VANCO-BF IL-1b     values       0.727 0.00728     # transformation helped.
+
 #Density plots to show distribution of cytokines
 histogram <- cytokines_long %>% 
-  filter(exp_number == 1) %>% 
-  filter(tissue == "ileum") %>%
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
   filter(variables != "INFg") %>% 
   drop_na(values) %>% 
   ggplot(aes(x = values, fill = group)) + 
@@ -128,9 +181,9 @@ histogram <- cytokines_long %>%
              scales = "free")
 
 log10_histogram <- cytokines_long %>% 
-  filter(exp_number == 1) %>% 
-  filter(tissue == "ileum") %>%
-  filter(variables != "INFg") %>% 
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
+  #filter(variables != "INFg") %>% 
   drop_na(values) %>% 
   ggplot(aes(x = log10(values), fill = group)) + 
   geom_density() +
@@ -139,8 +192,8 @@ log10_histogram <- cytokines_long %>%
 
 #Jitter plots. Works
 jitter_plot <- cytokines_long %>% 
-  filter(exp_number == 1) %>% 
-  filter(tissue == "ileum") %>%
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
   #filter(variables != "INFg") %>% 
   drop_na(values) %>% 
   ggplot(aes(x = group, y = values, color = group)) +
@@ -149,8 +202,8 @@ jitter_plot <- cytokines_long %>%
              scales = "free") 
 
 log10_jitter_plot <- cytokines_long %>% 
-  filter(exp_number == 1) %>% 
-  filter(tissue == "ileum") %>%
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
   filter(variables != "INFg") %>% 
   drop_na(values) %>% 
   mutate(adjusted_values = log10(values)) %>% 
@@ -158,12 +211,6 @@ log10_jitter_plot <- cytokines_long %>%
   geom_jitter() +
   facet_wrap(~ variables,
              scales = "free") 
-```
-
-Set the tissue type to whatever tissue your data are extracted from, or that you want to analyze first.
-```{r load data and set tissue type, include=FALSE}
-#set tissue type
-sample_tissue <- "ileum"
 ```
 
 Below is a table of the mean levels of cytokines in `r sample_tissue` tissue for each of the experimental groups. 
@@ -331,12 +378,14 @@ A regression model of the effects of type of feed and antibiotics treatment
 ```{r echo=FALSE, warning=FALSE}
 #### Make regression model on long format
 linear_reg_model <- cytokines_long %>% 
-  filter(tissue == sample_tissue) %>% 
+  filter(tissue == sample_tissue) %>%
+  filter(exp_number == study_round) %>% 
   group_by(variables) %>% 
-  do(lm(data = ., values ~ MAT+FEED+MAT*FEED) %>% tidy)  %>% filter(term!='(Intercept)')
+  do(lm(data = ., values ~ maternal_treatment+type_of_feed +maternal_treatment*type_of_feed) %>% tidy)  %>% filter(term!='(Intercept)')
 
 linear_reg_model %>%  
   select(-statistic) %>% 
+  filter(p.value < 0.05) %>% 
   kable(., caption = 'Effect of treatment factors on cytokine expression levels', digits = 3)
 
 #### Make regression model on one variable

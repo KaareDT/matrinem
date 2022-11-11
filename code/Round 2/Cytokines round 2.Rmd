@@ -39,17 +39,153 @@ First you load the data and check the structure. Make sure cytokine concentratio
 
 ```{r load data, echo=FALSE}
 # Import dataset
-#cytokines <- read_excel("../../Data/RawData/cytokines_round_1_r.xlsm")
-cytokines <- read_excel("../../Data/CleanData/cytokines.xlsx")
-glimpse(cytokines)
+cytokines <- read_excel("data/processed/cytokines.xlsx")
 ```
 
-Set the tissue type to whatever tissue your data are extracted from, or that you want to analyze first.
+Set the tissue type and experimental round here: 
 
 ```{r load data and set tissue type, include=FALSE}
 #set tissue type
 sample_tissue <- "ileum"
 study_round <- "2"
+```
+
+
+```{r load data, echo=FALSE}
+cytokines %>%   # run normality test on tissue weight
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
+  group_by(group) %>% 
+  shapiro_test(tissue_weight_mg) 
+
+# group    variable         statistic      p
+ # <chr>    <chr>                <dbl>  <dbl>
+# CON-BF   tissue_weight_mg     0.833 0.197 
+#GENTA-BF tissue_weight_mg     0.748 0.0120
+#VANCO-BF tissue_weight_mg     0.833 0.0861
+#look at tissue weight distribution
+
+cytokines %>%       #Weight of tissue samples
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
+  ggplot(aes(x = group, y = tissue_weight_mg, fill = group)) + 
+  geom_boxplot() +
+  geom_point() +
+  labs(
+    title = "Tissue weight of intestinal samples, experiment 2"
+  )
+```
+<!-- Looks fine. Go ahead and  adjust-->
+
+```{r adjust for tissue weight , echo=FALSE}
+cytokines_adjusted <- cytokines %>% 
+  pivot_longer(.,
+               cols = INFg:TNFa ,
+               names_to = "variables",
+               values_to = "values"
+  ) %>% 
+  mutate(
+    group = recode_factor(  #Change the order of the groups to desired plot order
+      group,
+      "CON-BF"= "CON-BF",
+      "CON-FF" = "CON-FF",
+      "AB-BF"= "AB-BF",
+      "AB-FF"= "AB-FF"
+      )) %>% 
+  mutate(values = if_else(tissue == "ileum", values/tissue_weight_mg, values)) %>% #Adjust for tissue weight
+  pivot_wider(
+    id_cols = c(
+      sample_id,exp_number, group, received_antibiotics,maternal_treatment, tissue,tissue_weight_mg),
+    names_from = variables, 
+    values_from = values)
+
+#____Pivot longer____
+cytokines_long <- cytokines_adjusted %>% 
+  pivot_longer(.,
+               cols = INFg:TNFa ,
+               names_to = "variables",
+               values_to = "values"
+  )
+```
+
+
+
+Check for data distribution. 
+
+```{r visualize data, eval=FALSE, include=FALSE}
+cytokines_long %>%                       #normality_check  of cytokine distributions
+  filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
+  #filter(variables != "INFg") %>% 
+  drop_na(values) %>% 
+  group_by(variables, group) %>% 
+  shapiro_test(values) %>% 
+  filter(p < 0.05)
+
+#Non-normal distributions: 
+#  group    variables variable statistic      p
+#  <fct>    <chr>     <chr>        <dbl>  <dbl>
+# VANCO-BF IL-1b     values       0.795 0.0363
+# GENTA-BF IL-4      values       0.777 0.0240
+
+
+#log10 transformed shapiro_test - failed variables
+cytokines_long %>% 
+ filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
+  filter(variables != "INFg") %>% 
+  drop_na(values) %>% 
+  mutate(values = log10(values)) %>% 
+  group_by(variables, group) %>% 
+  shapiro_test(values) %>% 
+  filter(p < 0.05)
+
+#  group    variables variable statistic       p
+#  <fct>    <chr>     <chr>        <dbl>   <dbl>
+# VANCO-BF IL-1b     values       0.727 0.00728     # transformation helped.
+
+#Density plots to show distribution of cytokines
+histogram <- cytokines_long %>% 
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
+  filter(variables != "INFg") %>% 
+  drop_na(values) %>% 
+  ggplot(aes(x = values, fill = group)) + 
+  geom_density() +
+  facet_wrap(~ variables, ncol = 2,
+             scales = "free")
+
+log10_histogram <- cytokines_long %>% 
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
+  #filter(variables != "INFg") %>% 
+  drop_na(values) %>% 
+  ggplot(aes(x = log10(values), fill = group)) + 
+  geom_density() +
+  facet_wrap(~ variables, ncol = 2,
+             scales = "free")
+
+#Jitter plots. Works
+jitter_plot <- cytokines_long %>% 
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
+  #filter(variables != "INFg") %>% 
+  drop_na(values) %>% 
+  ggplot(aes(x = group, y = values, color = group)) +
+  geom_jitter() +
+  facet_wrap(~ variables,
+             scales = "free") 
+
+log10_jitter_plot <- cytokines_long %>% 
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
+  filter(variables != "INFg") %>% 
+  drop_na(values) %>% 
+  mutate(adjusted_values = log10(values)) %>% 
+  ggplot(aes(x = group, y = values, color = group)) +
+  geom_jitter() +
+  facet_wrap(~ variables,
+             scales = "free") 
 ```
 
 Below is a table of the mean levels of cytokines in `r sample_tissue` tissue for each of the experimental groups.
@@ -105,42 +241,12 @@ tbl1_p <- tbl1 %>%
   as_tibble()
 ```
 
-### Plots and regression models
-
-First the data must be transformed to a long format (pivot longer). Mutate any new columns with group treatments needed for the regression model (in this case MAT and FEED (experimental factors)).
-
-```{r long format, echo=FALSE}
-cytokines_long <- cytokines %>% 
-  filter(exp_number == study_round) %>% 
-  filter(tissue == sample_tissue) %>%
-  pivot_longer(.,
-               cols = INFg:TNFa ,
-               names_to = "variables",
-               values_to = "values"
-  ) %>% 
-  drop_na(
-    values) %>% 
-  # mutate(MAT = ifelse(str_detect(group,'AB'),'AB',
-  #                                 ifelse(str_detect(group,'CON'),'CON', "miss")),
-  #        FEED = ifelse(str_detect(group,'FF'),'FF',
-  #                                 ifelse(str_detect(group,'BF'),'BF', "miss"))) %>% 
-  mutate(
-    group = recode_factor(  #Change the order of the groups to desired plot order
-      group,
-      "CON-BF"= "CON-BF",
-      "CON-FF" = "CON-FF",
-      "AB-BF"= "AB-BF",
-      "AB-FF"= "AB-FF"
-      ))
-
-head(cytokines_long)
-      
-```
-
 To see all the cytokine leves plotted run this code:
 
 ```{r plots all cytokines, warning=FALSE}
 plot_all_cytokines <- cytokines_long %>%
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
   #filter(!variables %in% "INFg") %>%  #Exclude any cytokines not wanted in the plot
 ggplot(aes(x = group, 
            y = values, 
@@ -152,14 +258,14 @@ ggplot(aes(x = group,
              ncol = 2) +
   labs(title = "Levels of pro-inflammatory cytokines in the ileum",  # Change title, and axis names
        x = "",
-       y = "Tissue conc.",
+       y = "pg/ml per mg tissue",
        fill = "Groups",
        caption = "Matrinem round 2") +
   theme_bw()+
   theme(                   # Change the appearance of labels
     plot.title = element_text(color="darkgrey", size=12, face="bold"),
     axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
-    axis.text.y = element_blank(),
+    #axis.text.y = element_blank(),
     axis.ticks.x = element_blank(),  # Hide labels
     axis.text.x = element_blank(),
     legend.title = element_text(face="bold"),   
@@ -169,9 +275,9 @@ ggplot(aes(x = group,
   scale_fill_brewer(palette="Set1")
   
 all_cytokines_patch <- plot_all_cytokines + plot_annotation (
-  title = 'Cytokine expression',
-   subtitle = 'All cytokines measured',
-  tag_levels = 'A',
+  #title = 'Cytokine expression',
+   #subtitle = 'All cytokines measured',
+  #tag_levels = 'A',
   caption = 'CON = Water, BF = Breast-Feeding, GENTA = Gentamicin,  VANCO = Vancomycin',
   theme = theme(plot.title = element_text(hjust = 0.5, size=14, face="bold"),
                 plot.subtitle = element_text(hjust = 0.5, face = "bold.italic"),

@@ -39,7 +39,7 @@ First you load the data and check the structure. Make sure cytokine concentratio
 
 ```{r load data, echo=FALSE}
 # Import dataset
-fitc <- read_excel("../../Data/CleanData/fitc.xlsx")
+fitc <- read_excel("data/processed/fitc.xlsx")
 glimpse(fitc)
 ```
 
@@ -50,10 +50,26 @@ Set the tissue type to whatever tissue your data are extracted from, or that you
 study_round <- "2"
 
 fitc<- fitc %>% 
-  rename("µg/ml" = `result_µg/ml_undiluted`)
+  rename(fitc_level = `result_µg/ml_undiluted`)
 ```
 
 ```{r data distribution}
+
+fitc %>% 
+  filter(exp_number == "2") %>% 
+  drop_na(fitc_level) %>% 
+  group_by(group) %>% 
+  shapiro_test(fitc_level) 
+#%>% filter(p < 0.05)
+
+#Jitter plots. Works
+jitter_plot <- fitc %>%
+  filter(exp_number == 2) %>% 
+  #filter(variables != "INFg") %>% 
+  drop_na(fitc_level) %>% 
+  ggplot(aes(x = group, y = fitc_level, color = group)) +
+  geom_jitter()
+
 no_outliers <- fitc %>% 
   filter(exp_number == 2) %>% 
   group_by(group2) %>% 
@@ -68,12 +84,13 @@ qplot(x = group2, y = fitc_level, data = ., geom = "jitter",
 
 Below is a table of the levels of intestinal permeability measurable as the concentration of fitc-dextran in serum for each of the experimental groups.
 
-The values will be displayed as mean + sd if normally distributed or median + IQR if not. An appropriate statistical test for differences will be performed (student-t for two, normally distributed groups, Anova for more than 2 groups, Kruskal wallis for non-normally distrubuted results.)
+The values will be displayed as median + IQR. An appropriate statistical test for differences will be performed (student-t for two, normally distributed groups, Anova for more than 2 groups, Kruskal wallis for non-normally distrubuted results.)
 
 ```{r}
 tbl1 <- fitc %>% 
   filter(exp_number == study_round) %>% 
-  select(group2, "µg/ml") %>% 
+  select(group2, fitc_level) %>% 
+  rename("µg/mL" = fitc_level) %>% 
   tbl_summary(by = group2,
               digits = everything() ~ c(2,1,1),
               missing = "no") %>%
@@ -128,7 +145,7 @@ First the data must be transformed to a long format (pivot longer). Mutate any n
 ```{r long format, echo=FALSE}
 fitc_long <- fitc %>% 
   filter(exp_number == study_round) %>% 
-  rename(values = "µg/ml") %>% 
+  rename(values = fitc_level) %>% 
   drop_na(
     values) %>% 
   mutate(
