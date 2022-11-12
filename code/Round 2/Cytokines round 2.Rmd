@@ -47,7 +47,7 @@ Set the tissue type and experimental round here:
 ```{r load data and set tissue type, include=FALSE}
 #set tissue type
 sample_tissue <- "ileum"
-study_round <- "2"
+study_round <- "3"
 ```
 
 
@@ -295,6 +295,8 @@ These cytokines are plottet below:
 #tbl1_p contains cytokines with significant changes
 
 signif_cytokines <- cytokines_long %>%
+    filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
   filter(variables %in% tbl1_p$Cytokines) %>%  #Exclude any cytokines not wanted in the plot
 ggplot(aes(x = group, 
            y = values, 

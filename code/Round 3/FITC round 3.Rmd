@@ -39,11 +39,19 @@ First you load the data and check the structure. Make sure cytokine concentratio
 
 ```{r load data, echo=FALSE}
 # Import dataset
-fitc <- read_excel("../../Data/CleanData/fitc.xlsx") %>% 
-  rename(values = `result_µg/ml_undiluted`) %>% 
+fitc <- read_excel("data/processed/fitc.xlsx") %>% 
+  rename(values = `result_µg/ml_undiluted`) %>%  #rename undiluted column.
   drop_na(values)
 
 glimpse(fitc)
+```
+
+Set the experimental round here: 
+
+```{r load data and set tissue type, include=FALSE}
+#set tissue type
+#study_round <- c("2","3")
+study_round <- 3
 ```
 
 Check for data distribution. 
@@ -51,26 +59,45 @@ Check for data distribution.
 ```{r load data and set tissue type, include=FALSE}
 #set tissue type
 
-normality_check <- fitc %>% 
-  filter(exp_number == 3) %>% 
-  group_by(group2) %>% 
+fitc %>% 
+  filter(exp_number == study_round) %>% 
+  group_by(exp_number, group2) %>% 
   shapiro_test(values)
-  
-# fitc<- fitc %>% 
-#   mutate(values = log10(values))     # Log transforming doesn't help.
+#  group2   variable statistic           p
+#  <chr>    <chr>        <dbl>       <dbl>
+# CON-BF   values       0.975 0.946      
+# CON-FF   values       0.912 0.295      
+# GENTA-BF values       0.965 0.838      
+# GENTA-FF values       0.962 0.833      
+# VANCO-BF values       0.854 0.0155     
+# VANCO-FF values       0.526 0.000000232
 
+fitc %>%  # try log-tranformation
+  filter(exp_number == study_round) %>% 
+  group_by(group2) %>% 
+  mutate(values = log10(values)) %>% 
+  shapiro_test(values)
+
+#group2   variable statistic         p
+#  <chr>    <chr>        <dbl>     <dbl>
+# CON-BF   values       0.877 0.0640   
+# CON-FF   values       0.955 0.731    
+# GENTA-BF values       0.851 0.0445   
+# GENTA-FF values       0.943 0.636    
+# VANCO-BF values       0.833 0.00778  
+# VANCO-FF values       0.695 0.0000171   # Log transforming doesn't help.
 
 #Density plots. Works
 fitc %>% 
-  filter(exp_number == 2 | exp_number == 3) %>% 
+  filter(exp_number == study_round) %>% 
   ggplot(aes(x = values, fill = group2)) + 
   geom_density() +
   facet_wrap(~ group2,
              scales = "free")
 
 #Jitter plots. Works
-fitc %>% 
-  filter(exp_number == 2 | exp_number == 3) %>% 
+fitc_long %>% 
+  filter(exp_number == study_round) %>% 
   ggplot(aes(x = group2, y = values)) + 
   geom_jitter() +
   facet_wrap(~ group2,
@@ -97,23 +124,24 @@ The values will be displayed as mean + sd if normally distributed or median + IQ
 
 ```{r}
 tbl1 <- fitc %>% 
-  filter(exp_number == 2 | exp_number == 3) %>% 
-  mutate(Log10_values = log10(values)) %>% 
-  select(group2, values, Log10_values) %>% 
+  filter(exp_number == 3) %>% 
+  mutate("FITC log10(ug/ml)" = log10(values)) %>% 
+  mutate("FITC (ug/ml)" = values) %>% 
+  select(group2, `FITC (ug/ml)`, `FITC log10(ug/ml)`) %>% 
   tbl_summary(by = group2,
               digits = everything() ~ c(2,1,1),
               missing = "no",
-              statistic = all_continuous() ~ "{mean} ({sd})") %>%
-  add_p(values ~ "aov") %>% 
+              statistic = vars(`FITC log10(ug/ml)`) ~ "{mean} ({sd})") %>%
+  add_p(`FITC log10(ug/ml)` ~ "aov") %>% 
   modify_header(
-    label = "FITC Conc.",
+    label = "**Groups**:",
     stat_1 = "**CON-BF**  \n (n = {n})",
     stat_2 = "**CON-FF**  \n (n = {n})",
     stat_3 = "**GENTA-BF**  \n (n = {n})",
     stat_4 = "**GENTA-FF**  \n (n = {n})",
     stat_5 = "**VANCO-BF**  \n (n = {n})",
     stat_6 = "**VANCO-FF**  \n (n = {n})") %>% 
-  modify_spanning_header((c("stat_1", "stat_2", "stat_3","stat_4", "stat_5", "stat_6") ~ "Treatment groups (N total = {N})"))
+  modify_spanning_header((c("stat_1", "stat_2", "stat_3","stat_4", "stat_5", "stat_6") ~ "Matrinem round 3 (N total = {N})"))
 
 tbl1_gt <- tbl1 %>% 
  as_gt() %>%
@@ -123,10 +151,7 @@ tbl1_gt <- tbl1 %>%
               heading.background.color = "lightgrey",
               ) %>% 
   tab_source_note(
-    source_note = " * P-value indicates overall group differences"
-  ) %>%
-  tab_source_note(
-    source_note = md("**Matrinem round 3**")
+    source_note = " *Geometric mean and (sd) for log-transformed values"
   ) %>%
   cols_width(label ~ px(100),
              stat_1 ~ px(150),
@@ -161,7 +186,6 @@ First the data must be transformed to a long format (pivot longer). Mutate any n
 
 ```{r long format, echo=FALSE}
 fitc_long <- fitc %>% 
-  filter(exp_number == study_round) %>% 
   drop_na(
     values) %>% 
   mutate(
@@ -182,24 +206,57 @@ head(fitc_long)
 Create a comparison vector to see pariwise comparisons
 
 ```{r plots all fitc, warning=FALSE}
-my_comparisons <- list( c("CON-BF", "GENTA-BF"), c("CON-BF", "VANCO-BF"), c("GENTA-BF", "VANCO-BF"))
+my_comparisons <- list( c("CON-BF", "CON-FF"), c("GENTA-BF", "GENTA-FF"), c("VANCO-BF", "VANCO-FF"), c("GENTA-FF", "VANCO-FF"))
 
-plot_all_fitc <- fitc_long %>%
+plot_all_fitc <- fitc_long %>%    #____Normal values_____#
+  filter(exp_number == study_round) %>% 
+  filter(values > 8) %>% 
 ggplot(aes(x = group2, 
            y = values, 
            fill = group2)) + 
   geom_boxplot() +
   geom_point() +
   #coord_cartesian(ylim = c(1.5, 16)) + 
-  # stat_compare_means(comparisons = my_comparisons, label.y = c(2.5, 2.2, 2), method = "wilcox.test")+
-  stat_compare_means(aes(label = paste0("Kruskal-Wallis \n p = ", ..p.format..)),
-    label.y.npc = 0.75,
-    label.x.npc = 0.55) +
+  stat_compare_means(comparisons = my_comparisons, label.y = c(30, 30, 30, 50), method = "wilcox.test")+
+  # stat_compare_means(aes(label = paste0("Kruskal-Wallis \n p = ", ..p.format..)),
+  #   label.y.npc = 0.75,
+  #   label.x.npc = 0.55) +
   labs( # Change title, and axis names
        x = "",
        y = "Serum FITC conc. (µg/ml)",
        fill = "Groups",
-       caption = "Matrinem round 2") +
+       caption = "Matrinem round 3") +
+  theme_bw()+
+  theme(                   # Change the appearance of labels
+    plot.title = element_text(color="darkgrey", size=12, face="bold"),
+    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    #axis.text.y = element_blank(),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.title = element_text(face="bold"),   
+    legend.position="bottom",
+    legend.background = element_rect(fill="lightgrey"),#Change legend box background color
+    plot.caption = element_text(color = "darkgrey", size=5)) + 
+  scale_fill_brewer(palette="Set1")
+
+plot_all_fitc_log <- fitc_long %>%        #Log_transformed values_____#
+  filter(exp_number == study_round) %>% 
+  filter(values > 8) %>% 
+ggplot(aes(x = group2, 
+           y = log10(values), 
+           fill = group2)) + 
+  geom_boxplot() +
+  geom_point() +
+  #coord_cartesian(ylim = c(1.5, 16)) + 
+  stat_compare_means(comparisons = my_comparisons, label.y = c(1.5, 1.5, 1.5, 1.7), method = "wilcox.test")+
+  # stat_compare_means(aes(label = paste0("Kruskal-Wallis \n p = ", ..p.format..)),
+  #   label.y.npc = 0.75,
+  #   label.x.npc = 0.55) +
+  labs( # Change title, and axis names
+       x = "",
+       y = "Log10 serum FITC conc. (µg/ml)",
+       fill = "Groups",
+       caption = "Matrinem round 3") +
   theme_bw()+
   theme(                   # Change the appearance of labels
     plot.title = element_text(color="darkgrey", size=12, face="bold"),
@@ -213,12 +270,11 @@ ggplot(aes(x = group2,
     plot.caption = element_text(color = "darkgrey", size=5)) + 
   scale_fill_brewer(palette="Set1")
   
-all_fitc_patch <- plot_all_fitc + plot_annotation (
+all_fitc_patch <- plot_all_fitc + plot_all_fitc_log + plot_annotation (
   title = 'Intestinal permeability',
    #subtitle = 'All fitc measured',
-  #tag_levels = 'A',
+  tag_levels = 'A',
   caption = 'CON = Water, BF = Breast-Feeding, GENTA = Gentamicin,  VANCO = Vancomycin,  \n
-  Overall difference= Kruskal-Wallis \n
   Pariwise comparisons = Wilcoxon test.',
   theme = theme(plot.title = element_text(hjust = 0.5, size=14, face="bold"),
                 plot.subtitle = element_text(hjust = 0.5, face = "bold.italic"),

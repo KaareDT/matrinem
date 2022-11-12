@@ -40,11 +40,64 @@ First you load the data and check the structure. Make sure cytokine concentratio
 ```{r load data, echo=FALSE}
 # Import dataset
 #cytokines <- read_excel("../../Data/RawData/cytokines_round_1_r.xlsm")
-cytokines <- read_excel("../../Data/CleanData/cytokines.xlsx")
+cytokines <- read_excel("data/processed//cytokines.xlsx")
 glimpse(cytokines)
 ```
 
-Set the tissue type to whatever tissue your data are extracted from, or that you want to analyze first.
+
+```{r load data and set tissue type, include=FALSE}
+#set tissue type
+sample_tissue <- "ileum"
+study_round <- "3"
+```
+
+
+```{r load data, echo=FALSE}
+cytokines %>%   # run normality test on tissue weight
+   filter(exp_number == 3) %>% 
+  filter(tissue == sample_tissue) %>%
+  group_by(type_of_feed) %>% 
+  shapiro_test(tissue_weight_mg) 
+
+# group    variable         statistic      p
+ # <chr>    <chr>                <dbl>  <dbl>
+# CON-BF   tissue_weight_mg     0.833 0.197 
+#GENTA-BF tissue_weight_mg     0.748 0.0120
+#VANCO-BF tissue_weight_mg     0.833 0.0861
+#look at tissue weight distribution
+
+cytokines %>%       #Weight of tissue samples
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
+  ggplot(aes(x = group, y = tissue_weight_mg, fill = group)) + 
+  geom_boxplot() +
+  geom_point() +
+  labs(
+    title = "Weight of intestinal samples",
+      x = "",
+       y = "Tissue weight (mg)",
+       fill = "Groups",
+       caption = "Matrinem round 3") +
+  theme_bw()
+
+cytokines %>%   # run normality test on tissue weight
+   filter(exp_number == 3) %>% 
+  filter(tissue == sample_tissue) %>%
+  group_by(type_of_feed) %>% 
+  summarise(mean = mean(tissue_weight_mg),
+            sd = sd(tissue_weight_mg))
+
+
+cytokines %>%   # run normality test on tissue weight
+   filter(exp_number == 3) %>% 
+  filter(tissue == sample_tissue) %>%
+  lm(tissue_weight_mg ~ type_of_feed,.) %>% 
+  summary()
+
+
+
+```
+<!-- Looks fine. Go ahead and  adjust-->
 
 ```{r load data and set tissue type, include=FALSE}
 #set tissue type
@@ -66,8 +119,8 @@ tbl1 <- cytokines %>%
               missing = "no") %>%
   add_p() %>% 
   modify_header(
-    label ~ "Cytokines") %>% 
-  modify_spanning_header((c("stat_1", "stat_2", "stat_3","stat_4", "stat_5", "stat_6") ~ "Treatment groups (N total = {N})"))
+    label ~ "**Groups**:") %>% 
+  modify_spanning_header((c("stat_1", "stat_2", "stat_3","stat_4", "stat_5", "stat_6") ~ "Matrinem round 3 (N total = {N})"))
 
 tbl1_gt <- tbl1 %>% 
  as_gt() %>%
@@ -78,9 +131,6 @@ tbl1_gt <- tbl1 %>%
               ) %>% 
   tab_source_note(
     source_note = " * P-value indicates overall group differences"
-  ) %>%
-  tab_source_note(
-    source_note = md("**Matrinem round 3**")
   ) %>%
   cols_width(label ~ px(100),
              stat_1 ~ px(150),
@@ -193,34 +243,28 @@ These cytokines are plottet below:
 
 ```{r}
 #tbl1_p contains cytokines with significant changes
+my_comparisons <- list( c("CON-BF", "CON-FF"), c("GENTA-BF", "GENTA-FF"))
 
 signif_cytokines <- cytokines_long %>%
-  filter(variables %in% tbl1_p$Cytokines) %>%  #Exclude any cytokines not wanted in the plot
+  filter(variables %in% c("IL-2","IL-6", "KCGRO")) %>% 
+  filter(values > 0.5) %>% #Exclude any cytokines not wanted in the plot
 ggplot(aes(x = group, 
            y = values, 
            fill = group)) + 
   geom_boxplot() +
-  stat_compare_means(aes(label = ..p.signif..),
-                   method = "wilcox.test", ref.group = "CON-BF",
-                   label.y.npc = 0.55) +
-  stat_compare_means(
-    aes(label = paste0("Global p = ", ..p.format.., "\n(Kruskal-Wallis)")),
-    label.y.npc = 0.85,
-    label.x.npc = 0.5) +
+  stat_compare_means(comparisons = my_comparisons, label.y.npc =  c(0.20, 0.15), method = "wilcox.test") +
   facet_wrap(~variables, 
-             scales = 'free', 
-             nrow = 3,
-             ncol = 3) +
+             scales = 'free') +
   labs(title = "Levels of pro-inflammatory cytokines in the ileum", # Change title, and axis names
        #subtitle = "Statistically significant changes", 
        x = "",
-       y = "Tissue conc.",
+       y = "Cytokine concentration (pg/ml)",
        fill = "Groups") +
   theme_bw()+
   theme(                   # Change the appearance of labels
     plot.title = element_text(color="darkgrey", size=12, face="bold"),
     axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
-    axis.text.y = element_blank(),
+    #axis.text.y = element_blank(),
     axis.ticks.x = element_blank(),  # Hide labels
     axis.text.x = element_blank(),
     legend.title = element_text(face="bold"),   
@@ -229,17 +273,65 @@ ggplot(aes(x = group,
   scale_fill_brewer(palette="Set1")
   
 signif_cytokines_patch <- signif_cytokines + plot_annotation (
-  title = 'Cytokine expression',
-  subtitle = 'Statistically significant changes',
-  tag_levels = 'A',
+  #title = 'Cytokine expression',
+  #subtitle = 'Statistically significant changes',
+  #tag_levels = 'A',
   caption = 'CON = Water, AB = Antibiotics, BF = Breast-Feeding, FF = Formula-Feeding. \n
-  Pairwise comparisons with CON-BF using wilcoxon test. NS = Not Significant, * p<0.05, ** p<0.01, *** p<0.001',
+  Pairwise comparisons using wilcoxon test.',
   theme = theme(plot.title = element_text(hjust = 0.5, size=14, face="bold"),
                 plot.subtitle = element_text(hjust = 0.5, face = "bold.italic"),
                 plot.caption = element_text(hjust = 0.5, size=7,face = "bold")))
 signif_cytokines_patch
 #ggsave('../../Results/Round 1/Significant Cytokines-boxplot.png',signif_cytokines_patch)
 ```
+
+```{r}
+my_comparisons <- list( c("CON-BF", "CON-FF"), c("GENTA-BF", "GENTA-FF"), c("VANCO-BF", "VANCO-FF"), c("GENTA-FF", "VANCO-FF"))
+
+signif_cytokines_plot <- cytokines_long %>%    #____Normal values_____#
+filter(variables %in% tbl1_p$`**Groups**:`) %>% 
+  ggplot(aes(x = group, 
+           y = values, 
+           fill = group)) + 
+  geom_boxplot() +
+  geom_point() +
+  #coord_cartesian(ylim = c(1.5, 16)) + 
+  stat_compare_means(comparisons = my_comparisons, label.y.npc = c(0.30, 0.30, 0.30, 0.50), method = "wilcox.test")+
+  # stat_compare_means(aes(label = paste0("Kruskal-Wallis \n p = ", ..p.format..)),
+  #   label.y.npc = 0.75,
+  #   label.x.npc = 0.55) +
+  labs( # Change title, and axis names
+       x = "",
+       y = "Cytokine concentration (pg/ml)",
+       fill = "Groups",
+       caption = "Matrinem round 3") +
+  theme_bw()+
+  theme(                   # Change the appearance of labels
+    plot.title = element_text(color="darkgrey", size=12, face="bold"),
+    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    #axis.text.y = element_blank(),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.title = element_text(face="bold"),   
+    legend.position="bottom",
+    legend.background = element_rect(fill="lightgrey"),#Change legend box background color
+    plot.caption = element_text(color = "darkgrey", size=5)) + 
+  scale_fill_brewer(palette="Set1")
+  
+cytokine_patch <- signif_cytokines_plot + plot_annotation (
+  title = 'Proinflammatory Cytokines',
+   #subtitle = 'All fitc measured',
+  #tag_levels = 'A',
+  caption = 'CON = Water, BF = Breast-Feeding, GENTA = Gentamicin,  VANCO = Vancomycin,  \n
+  Pariwise comparisons = Wilcoxon test.',
+  theme = theme(plot.title = element_text(hjust = 0.5, size=14, face="bold"),
+                plot.subtitle = element_text(hjust = 0.5, face = "bold.italic"),
+                plot.caption = element_text(hjust = 0.5, size=7,face = "bold")))
+  
+cytokine_patch
+```
+
+
 
 A regression model of the effects of type of feed and antibiotics treatment
 
