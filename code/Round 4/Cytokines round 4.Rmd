@@ -40,7 +40,7 @@ First you load the data and check the structure. Make sure cytokine concentratio
 ```{r load data, echo=FALSE}
 # Import dataset
 #cytokines <- read_excel("../../Data/RawData/cytokines_round_1_r.xlsm")
-cytokines <- read_excel("../../Data/CleanData/cytokines.xlsx")
+cytokines <- read_excel("data/processed/cytokines.xlsx")
 glimpse(cytokines)
 ```
 
@@ -53,9 +53,30 @@ study_round <- "4"
 
 ```
 
-Below is a table of the mean levels of cytokines in `r sample_tissue` tissue for each of the experimental groups.
+```{r}
+cytokines %>%   # run normality test on tissue weight
+   filter(exp_number == 4) %>% 
+  filter(tissue == sample_tissue) %>%
+  group_by(type_of_feed) %>% 
+  shapiro_test(tissue_weight_mg) 
 
-The values will be displayed as mean + sd if normally distributed or median + IQR if not. An appropriate statistical test for differences will be performed (student-t for two, normally distributed groups, Anova for more than 2 groups, Kruskal wallis for non-normally distrubuted results.)
+cytokines %>%       #Weight of tissue samples
+   filter(exp_number == study_round) %>% 
+  filter(tissue == sample_tissue) %>%
+  ggplot(aes(x = group, y = tissue_weight_mg, fill = group)) + 
+  geom_boxplot() +
+  geom_point() +
+
+  labs(
+    title = "Weight of intestinal samples",
+      x = "",
+       y = "Tissue weight (mg)",
+       fill = "Groups",
+       caption = "Matrinem round 4") +
+  theme_bw()
+
+```
+
 
 ```{r}
 tbl1 <- cytokines %>% 
@@ -68,21 +89,18 @@ tbl1 <- cytokines %>%
   add_p() %>% 
   modify_header(
     label ~ "Cytokines",
-    stat_1 = "**VANCO-BF (CON)**\n(n = {n})",
-    stat_2 = "**VANCO-FF (FVT)**\n(n = {n})",
-    stat_3 = "**VANCO-FF (SM)**\n(n = {n})") %>% 
+    stat_1 = "**VANCO-BF** \n(n = {n})",
+    stat_2 = "**VANCO-FVF** \n(n = {n})",
+    stat_3 = "**VANCO-SM** \n(n = {n})") %>% 
   modify_spanning_header((c("stat_1", "stat_2", "stat_3") ~ "Treatment groups (N total = {N})"))
 
 tbl1_gt <- tbl1 %>% 
  as_gt() %>%
-  tab_header(title = md("**Proinflammatory cytokines (pg/mL)**")) %>%
+  tab_header(title = md("**Tissue conentration of proinflammatory cytokines** *(pg/mL)*")) %>%
   opt_align_table_header("center") %>% 
   tab_options(heading.title.font.size = 20,
               heading.background.color = "lightgrey",
               ) %>% 
-  tab_source_note(
-    source_note = " * P-value indicates overall group differences"
-  ) %>%
   tab_source_note(
     source_note = md("**Matrinem round 4**")
   ) %>%

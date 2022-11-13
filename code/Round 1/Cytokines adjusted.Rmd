@@ -73,7 +73,7 @@ Set the tissue type and experimental round here:
 ```{r load data and set tissue type, include=FALSE}
 #set tissue type
 sample_tissue <- "ileum"
-study_round <- "2"
+study_round <- "1"
 ```
 
 ```{r load data, echo=FALSE}
@@ -173,10 +173,10 @@ cytokines_long %>%
 histogram <- cytokines_long %>% 
    filter(exp_number == study_round) %>% 
   filter(tissue == sample_tissue) %>%
-  filter(variables != "INFg") %>% 
+  #filter(variables != "INFg") %>% 
   drop_na(values) %>% 
   ggplot(aes(x = values, fill = group)) + 
-  geom_density() +
+  geom_histogram() +
   facet_wrap(~ variables, ncol = 2,
              scales = "free")
 
@@ -230,33 +230,34 @@ tbl1 <- cytokines %>%
               digits = everything() ~ c(2,1,1),
               missing = "no",
               include = !"INFg",
-             # statistic = list(all_continuous() ~ "{mean} ({sd})")  #Un-comment this line to get mean+sd. 
-             #%>%
-statistic = list(all_continuous() ~ "{mean} ({sd})")) %>%
+              #type = all_continuous() ~ "continuous2",
+              statistic = all_continuous() ~ #c("{mean} ({sd})",         
+                                     "{median} ({p25}, {p75})") %>%
   add_p() %>% 
   #modify_footnote("Exp. 1") %>% 
   modify_header(
-    label ~ "Cytokines") %>% 
-  modify_spanning_header((c("stat_1", "stat_2", "stat_3", "stat_4") ~ "Treatment groups (N total = {N})"))
+    label ~ "**Groups:**")
+  #modify_spanning_header((c("stat_1", "stat_2", "stat_3", "stat_4") ~ "Experiment 1 (N total = {N})")) %>% 
+
 
   tbl1_gt <- tbl1 %>% 
   as_gt() %>%
-  #tab_header(title = md("**Proinflammatory cytokines**")) %>%
+  tab_header(title = md("**Tissue concentraions of proinflammatory cytokines** *(pg/ml/mg tissue)*")) %>%
   opt_align_table_header("center") %>% 
-  # tab_options(heading.title.font.size = 20,
-  #             heading.background.color = "lightgrey",
-  #             ) %>% 
+   tab_options(heading.title.font.size = 20,
+               heading.background.color = "lightgrey",
+               ) %>% 
   tab_source_note(
-    source_note = " * P-value indicates overall group differences"
+    source_note = " *P-value indicates overall group differences"
   ) %>%
-  tab_source_note(
-    source_note = md("**Matrinem round 1**")
+     tab_source_note(
+    source_note = "Matrinem Experiment 1"
   ) %>%
-  cols_width(label ~ px(100),
+  cols_width(label ~ px(200),
              stat_1 ~ px(150),
-             stat_2 ~ px(150),
-             stat_3 ~ px(150),
-             stat_4 ~ px(150)) 
+             stat_2 ~ px(200),
+             stat_3 ~ px(200),
+             stat_4 ~ px(200)) 
 tbl1_gt
 
 
@@ -277,7 +278,7 @@ To see all the cytokine leves plotted run this code:
 plot_all_cytokines <- cytokines_long %>%
   filter(exp_number == "1") %>% 
   filter(tissue == sample_tissue) %>% 
-  #filter(!variables %in% "INFg") %>%  #Exclude any cytokines not wanted in the plot
+  filter(!variables %in% c("INFg", "IL-12p70")) %>%  #Exclude any cytokines not wanted in the plot
 ggplot(aes(x = group, 
            y = values, 
            fill = group)) + 
@@ -286,9 +287,9 @@ ggplot(aes(x = group,
              scales = 'free', 
              nrow = 5,
              ncol = 2) +
-  labs(title = "Levels of pro-inflammatory cytokines in the ileum",  # Change title, and axis names
+  labs(title = "Levels of pro-inflammatory cytokines in serum",  # Change title, and axis names
        x = "",
-       y = "Tissue conc. (pg/mg)",
+       y = "Serum conc. (pg/ml)",
        fill = "Groups") +
   theme_bw()+
   theme(                   # Change the appearance of labels
@@ -306,9 +307,9 @@ ggplot(aes(x = group,
      #  plot_all_cytokines,  width = 400, height = 600, units = "px")
   
 all_cytokines_patch <- plot_all_cytokines + plot_annotation (
-  title = 'Cytokine expression',
-   subtitle = 'All cytokines measured',
-  tag_levels = 'A',
+  #title = 'Cytokine expression',
+   #subtitle = 'All cytokines measured',
+  #tag_levels = 'A',
   caption = 'CON = Water, AB = Antibiotics, BF = Breast-Feeding, FF = Formula-Feeding',
   theme = theme(plot.title = element_text(hjust = 0.5, size=14, face="bold"),
                 plot.subtitle = element_text(hjust = 0.5, face = "bold.italic"),

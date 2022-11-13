@@ -47,7 +47,7 @@ Set the tissue type to whatever tissue your data are extracted from, or that you
 
 ```{r load data and set tissue type, include=FALSE}
 #set tissue type
-study_round <- "2"
+study_round <- "4"
 
 fitc<- fitc %>% 
   rename(fitc_level = `result_µg/ml_undiluted`)
@@ -56,22 +56,21 @@ fitc<- fitc %>%
 ```{r data distribution}
 
 fitc %>% 
-  filter(exp_number == "2") %>% 
+  filter(exp_number == study_round) %>% 
   drop_na(fitc_level) %>% 
   group_by(group) %>% 
   shapiro_test(fitc_level) 
 #%>% filter(p < 0.05)
 
 #Jitter plots. Works
-jitter_plot <- fitc %>%
-  filter(exp_number == 2) %>% 
-  #filter(variables != "INFg") %>% 
+fitc %>%
+  filter(exp_number == study_round) %>% 
   drop_na(fitc_level) %>% 
   ggplot(aes(x = group, y = fitc_level, color = group)) +
   geom_jitter()
 
 no_outliers <- fitc %>% 
-  filter(exp_number == 2) %>% 
+  filter(exp_number == study_round) %>% 
   group_by(group2) %>% 
   mutate(fitc_level = ifelse(fitc_level > 10, mean(fitc_level), fitc_level))
 

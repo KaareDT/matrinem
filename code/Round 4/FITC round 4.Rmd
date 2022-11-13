@@ -39,11 +39,18 @@ First you load the data and check the structure. Make sure cytokine concentratio
 
 ```{r load data, echo=FALSE}
 # Import dataset
-fitc <- read_excel("../../Data/CleanData/fitc.xlsx") %>% 
+fitc <- read_excel("data/processed/fitc.xlsx") %>% 
   rename(values = `result_µg/ml_undiluted`) %>% 
   drop_na(values)
 
 glimpse(fitc)
+```
+
+Set the tissue type and experimental round here: 
+
+```{r load data and set tissue type, include=FALSE}
+#set tissue type
+study_round <- "4"
 ```
 
 Check for data distribution. 
@@ -51,12 +58,10 @@ Check for data distribution.
 ```{r load data and set tissue type, eval=FALSE, include=FALSE}
 #set tissue type
 
-normality_check <- fitc %>% 
-  filter(exp_number == 4) %>% 
+fitc %>% 
+  filter(exp_number == study_round) %>% 
   group_by(group) %>% 
-  shapiro_test(values)
-  
-normality_check %>% 
+  shapiro_test(values) %>% 
   filter(p < 0.05)
 
 fitc<- fitc %>% 
@@ -99,15 +104,16 @@ The values will be displayed as mean + sd if normally distributed or median + IQ
 ```{r}
 tbl1 <- fitc %>% 
   filter(exp_number == 4) %>% 
-  mutate(Log10_values = log10(values)) %>% 
-  select(group, values, Log10_values) %>% 
+  #mutate(Log10_values = log10(values)) %>% 
+  select(group, values) %>% 
   tbl_summary(by = group,
               digits = everything() ~ c(2,1,1),
               missing = "no",
               #type = list(values ~ 'continuous2', Log10_values ~ 'continuous2'),
-              statistic = list(values ~ "{median} ({p25}, {p75})", Log10_values ~"{median} ({p25}, {p75})"),
-              label = list(values ~ "µg/mL", Log10_values ~ "Log transformed")) %>%
-  add_p(list(values ~ "kruskal.test", Log10_values ~ "kruskal.test")) %>% 
+              statistic = list(values ~ "{median} ({p25}, {p75})"),
+              label = values ~ "µg/mL") %>%
+                
+  add_p() %>% 
   # modify_table_styling(
   #   columns = label,
   #   rows = label == "µg/mL",
@@ -115,16 +121,19 @@ tbl1 <- fitc %>%
   # ) %>% 
   modify_header(
     label = "FITC Conc.",
-    stat_1 = "**VANCO-BF (CON)**\n(n = {n})",
-    stat_2 = "**VANCO-FF (FVT)**\n(n = {n})",
-    stat_3 = "**VANCO-FF (SM)**\n(n = {n})") %>% 
+    stat_1 = "**VANCO-BF** \n
+    (n = {n})",
+    stat_2 = "**VANCO-FVF** \n
+    (n = {n})",
+    stat_3 = "**VANCO-SM** \n
+    (n = {n})") %>% 
   modify_spanning_header((c("stat_1", "stat_2", "stat_3") ~ "Treatment groups (N total = {N})")) %>%  
   bold_labels()
 
 tbl1_gt <- tbl1 %>% 
  as_gt(include = -tab_footnote) %>%
   tab_footnote( 
-    footnote = md("Log transformation did not normalize distribution.  \n  Non-parametric test (Kruskall-Wallis) used for both datasets."),
+    footnote = md("Median (IQR), Kruskal-Wallis."),
     locations = cells_column_labels(columns = c(p.value))
   ) %>% 
   tab_header(title = md("**Intestinal permeability**")) %>%
@@ -147,14 +156,6 @@ tbl1_gt
 #   gtsave("../../Results/Round 4/FITC table round 3 TEST.png", expand = 50) #use .tex for latex files
 ```
 
-This table can be exported with the following code either to word, excel, pdf, html or image files. See the syntax of huxtable and flextable (?flextable).
-
-```{r ileum cytokine export, echo=TRUE, warning=FALSE}
-tbl1_p <- tbl1 %>%
-  filter_p() %>% 
-  as_tibble()
-```
-
 ### Plots and regression models
 
 First the data must be transformed to a long format (pivot longer). Mutate any new columns with group treatments needed for the regression model (in this case MAT and FEED (experimental factors)).
@@ -169,8 +170,8 @@ fitc_long <- fitc %>%
     group = recode_factor(#Change the order of the groups to desired plot order
       group,
       "CON-BF"= "VANCO-BF",
-      "FVT-FORM" = "VANCO-FF (FVT)",
-      "SM-FORM" = "VANCO-FF (SM)"
+      "FVT-FORM" = "VANCO-FVF",
+      "SM-FORM" = "VANCO-SM"
       ))
 
 
@@ -180,7 +181,7 @@ head(fitc_long)
 
 Create a comparison vector to see pariwise comparisons.
 ```{r comparison list, warning=FALSE}
-my_comparisons <- list(c("VANCO-BF", "VANCO-FF (FVT)"), c("VANCO-BF", "VANCO-FF (SM)"), c("VANCO-FF (FVT)", "VANCO-FF (SM)"))
+my_comparisons <- list(c("VANCO-FVF", "VANCO-SM"), c("VANCO-BF", "VANCO-FVF"))
 ```
 
 Boxplots with jitter - normal values
@@ -191,16 +192,17 @@ ggplot(aes(x = group,
            fill = group)) + 
   geom_boxplot() +
   geom_point() +
-  #coord_cartesian(ylim = c(1.5, 16)) + 
-  stat_compare_means(comparisons = my_comparisons, label.y = c(60, 50, 45), method = "wilcox.test") +
-  stat_compare_means(aes(label = paste0("Kruskal-Wallis \n p = ", ..p.format..)),
-    label.y.npc = 0.75,
-    label.x.npc = 0.55) +
+  coord_cartesian(ylim = c(10,35)) + 
+  stat_compare_means(comparisons = my_comparisons, label.y = c(20, 25), method = "wilcox.test") +
+  #stat_compare_means(aes(label = paste0("Kruskal-Wallis \n p = ", ..p.format..)),
+   # label.y.npc = 0.75,
+    #label.x.npc = 0.55) +
   labs( # Change title, and axis names
        x = "",
        y = "Serum FITC conc. (µg/ml)",
-       fill = "Groups",
-       caption = "Matrinem round 4") +
+       fill = "Groups"
+       #caption = "Matrinem round 4"
+       ) +
   theme_bw()+
   theme(                   # Change the appearance of labels
     plot.title = element_text(color="darkgrey", size=12, face="bold"),
@@ -218,8 +220,8 @@ all_fitc_patch <- plot_all_fitc + plot_annotation (
   title = 'Intestinal permeability',
    #subtitle = 'All fitc measured',
   #tag_levels = 'A',
-  caption = 'VANCO = Vancomycin, BF = Breast-Feeding, FF = Formula-Feeding\n
-  FVT = Fecal Virome Transfer, SM = SM-buffer',
+  caption = 'FVF = Fecal Virome Filtrate, SM = SM-buffer  \n
+  Pairwise comparisions using wilcoxon', 
   theme = theme(plot.title = element_text(hjust = 0.5, size=14, face="bold"),
                 plot.subtitle = element_text(hjust = 0.5, face = "bold.italic"),
                 plot.caption = element_text(hjust = 0.5, size=7,face = "bold")))
