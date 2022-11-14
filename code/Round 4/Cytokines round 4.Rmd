@@ -162,6 +162,7 @@ To see all the cytokine leves plotted run this code:
 
 ```{r plots all cytokines, warning=FALSE}
 plot_all_cytokines <- cytokines_long %>%
+  #mutate(values = values/tissue_weight_mg) %>%    #to run analysis on tissue-weight adjusted concentrations
   #filter(!variables %in% "INFg") %>%  #Exclude any cytokines not wanted in the plot
 ggplot(aes(x = group, 
            y = values, 
