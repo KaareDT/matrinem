@@ -63,13 +63,17 @@ birthweight <- data %>%
   summarise(birthweight = mean(bodyweight),
             sd = sd(bodyweight))
 
+birthweight %>% 
+  filter(time %in% "day_0") %>% 
+  knitr::kable()
+
 lm_birthweight <- data %>%  #LM for effect of gestational age on offspring birthweight. 
   filter(exp_number %in% "2") %>% 
   filter(time %in% c("day_0", "day_1", "day_2")) %>%
   drop_na(bodyweight) %>% 
   filter(time == "day_0") %>% 
   mutate(gestation_age = if_else(maternal_treatment == "CON", 21,20)) %>% 
-  do(lm(bodyweight ~ gestation_age,.) %>% tidy)
+  do(lm(bodyweight ~ gestation_age + maternal_treatment,.) %>% tidy)
 lm_birthweight
 
 data %>% # ANOVA for effect of gestational age on offspring birthweight. 

@@ -206,7 +206,7 @@ head(fitc_long)
 Create a comparison vector to see pariwise comparisons
 
 ```{r plots all fitc, warning=FALSE}
-my_comparisons <- list( c("CON-BF", "CON-FF"), c("GENTA-BF", "GENTA-FF"), c("VANCO-BF", "VANCO-FF"), c("GENTA-FF", "VANCO-FF"))
+my_comparisons <- list( c("CON-BF", "CON-FF"), c("GENTA-BF", "GENTA-FF"), c("VANCO-FF", "GENTA-FF"), c("CON-FF", "VANCO-FF"))
 
 plot_all_fitc <- fitc_long %>%    #____Normal values_____#
   filter(exp_number == study_round) %>% 
@@ -217,7 +217,7 @@ ggplot(aes(x = group2,
   geom_boxplot() +
   geom_point() +
   #coord_cartesian(ylim = c(1.5, 16)) + 
-  stat_compare_means(comparisons = my_comparisons, label.y = c(30, 30, 30, 50), method = "wilcox.test")+
+  stat_compare_means(comparisons = my_comparisons, label.y = c(20, 20, 30, 50), method = "wilcox.test")+
   # stat_compare_means(aes(label = paste0("Kruskal-Wallis \n p = ", ..p.format..)),
   #   label.y.npc = 0.75,
   #   label.x.npc = 0.55) +
@@ -248,7 +248,7 @@ ggplot(aes(x = group2,
   geom_boxplot() +
   geom_point() +
   #coord_cartesian(ylim = c(1.5, 16)) + 
-  stat_compare_means(comparisons = my_comparisons, label.y = c(1.5, 1.5, 1.5, 1.7), method = "wilcox.test")+
+  stat_compare_means(comparisons = my_comparisons, label.y = c(1.5, 1.5, 1.7, 1.8), method = "wilcox.test")+
   # stat_compare_means(aes(label = paste0("Kruskal-Wallis \n p = ", ..p.format..)),
   #   label.y.npc = 0.75,
   #   label.x.npc = 0.55) +

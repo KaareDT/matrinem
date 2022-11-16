@@ -97,7 +97,74 @@ cytokines %>%   # run normality test on tissue weight
 
 
 ```
+
+```{r}
+cytokines_unadjusted <- cytokines %>% 
+  pivot_longer(.,
+               cols = INFg:TNFa ,
+               names_to = "variables",
+               values_to = "values"
+  ) %>% 
+  mutate(
+    group = recode_factor(  #Change the order of the groups to desired plot order
+      group,
+      "CON-BF"= "CON-BF",
+      "CON-FF" = "CON-FF",
+      "AB-BF"= "AB-BF",
+      "AB-FF"= "AB-FF"
+      )) %>% 
+  #mutate(adjusted_values = if_else(tissue == "ileum", values/tissue_weight_mg, values)) %>% #Adjust for tissue weight
+  pivot_wider(
+    id_cols = c(
+      sample_id,exp_number, group, received_antibiotics,maternal_treatment, tissue,tissue_weight_mg),
+    names_from = variables, 
+    values_from = values)
+
+#____Pivot longer____
+cytokines_long_unadjusted <- cytokines %>% 
+  pivot_longer(.,
+               cols = INFg:TNFa ,
+               names_to = "variables",
+               values_to = "values"
+  )
+
+```
+
 <!-- Looks fine. Go ahead and  adjust-->
+
+
+```{r}
+cytokines_adjusted <- cytokines %>% 
+  pivot_longer(.,
+               cols = INFg:TNFa ,
+               names_to = "variables",
+               values_to = "values"
+  ) %>% 
+  mutate(
+    group = recode_factor(  #Change the order of the groups to desired plot order
+      group,
+      "CON-BF"= "CON-BF",
+      "CON-FF" = "CON-FF",
+      "AB-BF"= "AB-BF",
+      "AB-FF"= "AB-FF"
+      )) %>% 
+  mutate(adjusted_values = if_else(tissue == "ileum", values/tissue_weight_mg, values)) %>% #Adjust for tissue weight
+  pivot_wider(
+    id_cols = c(
+      sample_id,exp_number, group, received_antibiotics,maternal_treatment, tissue,tissue_weight_mg),
+    names_from = variables, 
+    values_from = adjusted_values)
+
+#____Pivot longer____
+cytokines_long_adjusted <- cytokines %>% 
+  pivot_longer(.,
+               cols = INFg:TNFa ,
+               names_to = "variables",
+               values_to = "adjusted_values"
+  )
+
+```
+
 
 ```{r load data and set tissue type, include=FALSE}
 #set tissue type
@@ -119,18 +186,21 @@ tbl1 <- cytokines %>%
               missing = "no") %>%
   add_p() %>% 
   modify_header(
-    label ~ "**Groups**:") %>% 
-  modify_spanning_header((c("stat_1", "stat_2", "stat_3","stat_4", "stat_5", "stat_6") ~ "Matrinem round 3 (N total = {N})"))
+    label ~ "**Groups**:")
+  #modify_spanning_header((c("stat_1", "stat_2", "stat_3","stat_4", "stat_5", "stat_6") ~ "Matrinem round 3 (N total = {N})"))
 
 tbl1_gt <- tbl1 %>% 
  as_gt() %>%
-  tab_header(title = md("**Proinflammatory cytokines**")) %>%
+  tab_header(title = md("**Tissue concentrations of pro-inflammatory cytokines** *(pg/ml)*")) %>%
   opt_align_table_header("center") %>% 
   tab_options(heading.title.font.size = 20,
               heading.background.color = "lightgrey",
               ) %>% 
   tab_source_note(
     source_note = " * P-value indicates overall group differences"
+  ) %>%
+   tab_source_note(
+    source_note = "Matrinem round 3"
   ) %>%
   cols_width(label ~ px(100),
              stat_1 ~ px(150),

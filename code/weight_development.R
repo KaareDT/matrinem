@@ -27,7 +27,7 @@ birthweight <- data %>%
   filter(exp_number %in% "2") %>% 
   filter(time %in% c("day_0", "day_1", "day_2")) %>%
   drop_na(bodyweight) %>% 
-  group_by(exp_number, maternal_treatment, time) %>% 
+  group_by(exp_number, received_antibiotics, time) %>% 
   summarise(birthweight = mean(bodyweight),
             sd = sd(bodyweight))
 
