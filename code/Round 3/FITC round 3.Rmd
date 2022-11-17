@@ -208,57 +208,26 @@ Create a comparison vector to see pariwise comparisons
 ```{r plots all fitc, warning=FALSE}
 my_comparisons <- list( c("CON-BF", "CON-FF"), c("GENTA-BF", "GENTA-FF"), c("VANCO-FF", "GENTA-FF"), c("CON-FF", "VANCO-FF"))
 
-plot_all_fitc <- fitc_long %>%    #____Normal values_____#
-  filter(exp_number == study_round) %>% 
-  filter(values > 8) %>% 
-ggplot(aes(x = group2, 
-           y = values, 
-           fill = group2)) + 
-  geom_boxplot() +
-  geom_point() +
-  #coord_cartesian(ylim = c(1.5, 16)) + 
-  stat_compare_means(comparisons = my_comparisons, label.y = c(20, 20, 30, 50), method = "wilcox.test")+
-  # stat_compare_means(aes(label = paste0("Kruskal-Wallis \n p = ", ..p.format..)),
-  #   label.y.npc = 0.75,
-  #   label.x.npc = 0.55) +
-  labs( # Change title, and axis names
-       x = "",
-       y = "Serum FITC conc. (µg/ml)",
-       fill = "Groups",
-       caption = "Matrinem round 3") +
-  theme_bw()+
-  theme(                   # Change the appearance of labels
-    plot.title = element_text(color="darkgrey", size=12, face="bold"),
-    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
-    #axis.text.y = element_blank(),
-    axis.ticks.x = element_blank(),  # Hide labels
-    axis.text.x = element_blank(),
-    legend.title = element_text(face="bold"),   
-    legend.position="bottom",
-    legend.background = element_rect(fill="lightgrey"),#Change legend box background color
-    plot.caption = element_text(color = "darkgrey", size=5)) + 
-  scale_fill_brewer(palette="Set1")
-
-plot_all_fitc_log <- fitc_long %>%        #Log_transformed values_____#
-  filter(exp_number == study_round) %>% 
+Exp3_fitc <- fitc_long %>%        #Log_transformed values_____#
+  filter(exp_number == 3) %>% 
+  filter(group2 != "VANCO-BF") %>% 
   filter(values > 8) %>% 
 ggplot(aes(x = group2, 
            y = log10(values), 
            fill = group2)) + 
-  geom_boxplot() +
+  geom_boxplot(outlier.shape = NA) +
   geom_point() +
-  #coord_cartesian(ylim = c(1.5, 16)) + 
-  stat_compare_means(comparisons = my_comparisons, label.y = c(1.5, 1.5, 1.7, 1.8), method = "wilcox.test")+
-  # stat_compare_means(aes(label = paste0("Kruskal-Wallis \n p = ", ..p.format..)),
-  #   label.y.npc = 0.75,
-  #   label.x.npc = 0.55) +
+  #stat_compare_means(comparisons = my_comparisons, label.y = c(1.5, 1.5, 1.7, 1.8), method = "wilcox.test")+
+  stat_compare_means(aes(label = ..p.signif..),
+                   method = "wilcox.test", ref.group = "CON-BF",
+                   label.y.npc = 0.55) +
   labs( # Change title, and axis names
        x = "",
        y = "Log10 serum FITC conc. (µg/ml)",
        fill = "Groups",
        caption = "Matrinem round 3") +
   theme_bw()+
-  theme(                   # Change the appearance of labels
+  theme(                   
     plot.title = element_text(color="darkgrey", size=12, face="bold"),
     axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
     #axis.text.y = element_blank(),
@@ -266,21 +235,20 @@ ggplot(aes(x = group2,
     axis.text.x = element_blank(),
     legend.title = element_text(face="bold"),   
     legend.position="bottom",
-    legend.background = element_rect(fill="lightgrey"),#Change legend box background color
+    legend.background = element_rect(fill="lightgrey"),
     plot.caption = element_text(color = "darkgrey", size=5)) + 
-  scale_fill_brewer(palette="Set1")
-  
-all_fitc_patch <- plot_all_fitc + plot_all_fitc_log + plot_annotation (
+  scale_fill_brewer(palette="Set1") + plot_annotation (
   title = 'Intestinal permeability',
    #subtitle = 'All fitc measured',
   tag_levels = 'A',
-  caption = 'CON = Water, BF = Breast-Feeding, GENTA = Gentamicin,  VANCO = Vancomycin,  \n
-  Pariwise comparisons = Wilcoxon test.',
+  caption = 'CON = Water, BF = Breast-Feeding, FF = Formula-Feeding, GENTA = Gentamicin,  VANCO = Vancomycin,  \n
+  Pairwise comparison with CON-BF as reference. \n
+    **: p < 0.01, *: p < 0.05, ns: not significant."',
   theme = theme(plot.title = element_text(hjust = 0.5, size=14, face="bold"),
                 plot.subtitle = element_text(hjust = 0.5, face = "bold.italic"),
                 plot.caption = element_text(hjust = 0.5, size=7,face = "bold")))
   
-all_fitc_patch
-#ggsave('../../Results/Round 1/All fitc-boxplot.png',all_fitc_patch)
+Exp3_fitc %>% 
+ggsave(path = "exports/fitc/", filename = "Exp3-fitc.png")
 ```
 
