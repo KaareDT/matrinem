@@ -1,14 +1,16 @@
 ---
 title: "Cytokine analysis script - all rounds - adjusted for tissue weight"
 author: "Kaare"
-date: "11th October 2022"    
-output: html_document
-editor_options: 
+date: "11th October 2022"
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
   chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning=FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE)
 ```
 
 ```{r load packages, include=FALSE}
@@ -92,7 +94,7 @@ Exp1_tissue_weight <- cytokines_long %>%
     **: p < 0.01, *: p < 0.05, NS: not significant."
   ) 
 Exp1_tissue_weight
-ggsave('exports/cytokines/Exp1-weights-of-tissue.png',Exp1_tissue_weight)
+ggsave(width = 170, height = 120, units = "mm",'exports/cytokines/Exp1-weights-of-tissue.png',Exp1_tissue_weight)
 ```
 
 ## Check for data distribution. 
@@ -196,8 +198,9 @@ add_p() %>%
              stat_2 ~ px(140),
              stat_3 ~ px(140),
              stat_4 ~ px(140)) 
+Exp1_tbl1
 Exp1_tbl1 %>%
-  gtsave(path = "exports/cytokines/", filename = "Exp1-tissue-adjusted.png", vwidth = 760, vheight = 450)
+  gtsave(path = "exports/cytokines/", filename = "Exp1-tissue-adjusted-table.png")
 
 ```
 
@@ -243,7 +246,7 @@ ggplot(aes(x = group,
                 plot.caption = element_text(hjust = 0.5, size=7,face = "bold")))
   
 Exp1_plot_all_cytokines
-ggsave('exports/cytokines/Exp1-tissue-adjusted-plot.png',Exp1_plot_all_cytokines)
+ggsave(width = 170, height = 120, units = "mm", 'exports/cytokines/Exp1-tissue-adjusted-plot.png',Exp1_plot_all_cytokines)
 ```
 
 # Exp2 exp_number : Matrinem Experiment 1 
@@ -276,7 +279,7 @@ Exp2_tissue_weight <- cytokines_long %>%
     caption = "Pairwise comparison with CON-BF as reference. \n
     **: p < 0.01, *: p < 0.05, NS: not significant."
   ) 
-ggsave('exports/cytokines/Exp2-weights-of-tissue.png',Exp2_tissue_weight)
+ggsave(width = 170, height = 120, units = "mm",'exports/cytokines/Exp2-weights-of-tissue.png',Exp2_tissue_weight)
 
 ```
 
@@ -375,6 +378,7 @@ add_p() %>%
      tab_source_note(
     source_note = "Matrinem Experiment 2"
   ) 
+Exp2_tbl1
 Exp2_tbl1 %>%
   gtsave(path = "exports/cytokines/", filename = "Exp2-tissue-adjusted-table.png")
 
@@ -421,7 +425,7 @@ ggplot(aes(x = group,
                 plot.caption = element_text(hjust = 0.5, size=7,face = "bold")))
   
 Exp2_plot_all_cytokines
-ggsave('exports/cytokines/Exp2-tissue-adjusted-plot.png',Exp2_plot_all_cytokines)
+ggsave(width = 170, height = 120, units = "mm",'exports/cytokines/Exp2-tissue-adjusted-plot.png',Exp2_plot_all_cytokines)
 ```
 
 # Exp3 exp_number : Matrinem Experiment 2 
@@ -454,7 +458,7 @@ Exp3_tissue_weight <- cytokines_long %>%
     caption = "Pairwise comparison with CON-BF as reference. \n
     **: p < 0.01, *: p < 0.05, NS: not significant."
   ) 
-ggsave('exports/cytokines/Exp3-weights-of-tissue.png',Exp3_tissue_weight)
+ggsave(width = 170, height = 120, units = "mm",'exports/cytokines/Exp3-weights-of-tissue.png',Exp3_tissue_weight)
 
 ```
 
@@ -554,6 +558,7 @@ add_p() %>%
      tab_source_note(
     source_note = "Matrinem Experiment 3"
   ) 
+Exp3_tbl1
 Exp3_tbl1 %>%
   gtsave(path = "exports/cytokines/", filename = "Exp3-tissue-adjusted-table.png")
 ```
@@ -600,7 +605,7 @@ ggplot(aes(x = group,
                 plot.caption = element_text(hjust = 0.5, size=7,face = "bold")))
   
 Exp3_plot_all_cytokines
-ggsave('exports/cytokines/Exp3-tissue-adjusted-plot.png',Exp3_plot_all_cytokines)
+ggsave(width = 200, height = 120, units = "mm",'exports/cytokines/Exp3-tissue-adjusted-plot.png',Exp3_plot_all_cytokines)
 ```
 
 # Exp4 : exp_number : Matrinem Experiment 3 
@@ -633,7 +638,7 @@ Exp4_tissue_weight <- cytokines_long %>%
     caption = "Pairwise comparison with VANCO-BF as reference. \n
     ****: p < 0.0005, ***: p < 0.001, NS: not significant."
   ) 
-ggsave('exports/cytokines/Exp4-weights-of-tissue.png',Exp4_tissue_weight)
+ggsave(width = 170, height = 120, units = "mm",'exports/cytokines/Exp4-weights-of-tissue.png',Exp4_tissue_weight)
 
 ```
 
@@ -733,6 +738,7 @@ add_p() %>%
      tab_source_note(
     source_note = "Matrinem Experiment 4"
   ) 
+Exp4_tbl1
 Exp4_tbl1 %>%
   gtsave(path = "exports/cytokines/", filename = "Exp4-tissue-adjusted-table.png")
 ```
@@ -779,5 +785,5 @@ ggplot(aes(x = group,
                 plot.caption = element_text(hjust = 0.5, size=7,face = "bold")))
   
 Exp4_plot_all_cytokines
-ggsave('exports/cytokines/Exp4-tissue-adjusted-plot.png',Exp4_plot_all_cytokines)
+ggsave(width = 170, height = 120, units = "mm",'exports/cytokines/Exp4-tissue-adjusted-plot.png',Exp4_plot_all_cytokines)
 ```

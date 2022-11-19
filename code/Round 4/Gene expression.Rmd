@@ -8,7 +8,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
@@ -25,149 +25,147 @@ library(gtsummary)
 library(patchwork)
 ```
 
-# Gene expression
-## Plot
+# Gene expression in Matrinem Experiment 4
+
 
 ```{r}
-delta_gene_expr <- read_excel("data/processed/gene_expression_fold_changes.xlsx") %>% 
+delta_gene_expr <- read_excel("data/processed/gene_expression_fold_changes.xlsx") %>%
    mutate(
     groups = recode_factor(  #Change the order of the groups to desired plot order
       groups,
       "con-bf"= "VANCO-BF",
-      "fvt-form" = "VANCO-FVF",
-      "sm-form" = "VANCO-SM"
+      "sm-form" = "VANCO-SM",
+      "fvt-form" = "VANCO-FVF"
+      
       ))
+```
+
+## Increased
+```{r increased}
 increased <- delta_gene_expr %>% 
  group_by(genes, groups) %>% 
   summarise(mean_fold_change = mean(relative_fold_change)) %>% 
-  filter(mean_fold_change > 2)
+  filter(mean_fold_change >= 1.75)
+```
 
+## Increased plot 
+```{r increased plot}
+increased_plot <- delta_gene_expr %>% 
+  filter(genes %in% increased$genes) %>% 
+  mutate(across(genes, factor, levels=c("TNFa","MUC1","IL1b","REG3G"))) %>%
+  group_by(genes, groups) %>% 
+  summarise(mean_fold_change = mean(relative_fold_change)) %>% 
+  ggplot(
+    aes(x = groups,
+        y = mean_fold_change,
+        fill = groups)
+  ) + 
+  geom_col() +
+  facet_wrap(~genes,
+             nrow = 1, 
+             scales = "free") + 
+  labs(
+       y = "Fold Δ",
+       x = "",
+       fill = "Groups") +
+  theme_bw()+
+  theme(                   
+    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.position = "none") + 
+    scale_fill_brewer(palette="Set1")
+  increased_plot
+```
+
+## Decreased
+```{r decreased}
 decreased <- delta_gene_expr %>% 
  group_by(genes, groups) %>% 
   summarise(mean_fold_change = mean(relative_fold_change)) %>% 
-  filter(mean_fold_change < 0.6)
-
-
-bar_charts_no_change <- delta_gene_expr %>% 
-  filter(!genes %in% c(increased$genes, decreased$genes)) %>% 
-  group_by(genes, groups) %>% 
-  summarise(mean_fold_change = mean(relative_fold_change)) %>% 
-  ggplot(
-    aes(x = groups,
-        y = mean_fold_change,
-        fill = groups)
-  ) + 
-  geom_col() +
-  facet_wrap(~genes,
-             nrow = 1, 
-             scales = "free") +
-  labs(
-       y = "Gene expression relative fold change",
-       x = "",
-       fill = "Groups")
-  theme_bw()+
-  theme(                   # Change the appearance of labels
-    plot.title = element_text(color="darkgrey", size=12, face="bold"),
-    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
-    axis.ticks.x = element_blank(),  # Hide labels
-    axis.text.x = element_blank(),
-    legend.title = element_text(face="bold"),   
-    legend.position="bottom",
-    legend.background = element_rect(fill="lightgrey"), # Change legend box background color
-    plot.caption = element_text(color = "darkgrey", size=5)) + 
-  scale_fill_brewer(palette="Set1")
-bar_charts_no_change
-
-bar_charts_increased <- delta_gene_expr %>% 
-  filter(!genes %in% c(increased$genes, decreased$genes)) %>% 
-  group_by(genes, groups) %>% 
-  summarise(mean_fold_change = mean(relative_fold_change)) %>% 
-  ggplot(
-    aes(x = groups,
-        y = mean_fold_change,
-        fill = groups)
-  ) + 
-  geom_col() +
-  facet_wrap(~genes,
-             nrow = 1, 
-             scales = "free") +
-  labs(
-    #title = "Rate of gene expression in ileum tissue",
-       y = "Gene expression relative fold change",
-       x = "",
-       fill = "Groups",
-       caption = "Matrinem round 4") +
-  theme_bw()+
-  theme(                   # Change the appearance of labels
-    plot.title = element_text(color="darkgrey", size=12, face="bold"),
-    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
-    axis.ticks.x = element_blank(),  # Hide labels
-    axis.text.x = element_blank(),
-    legend.title = element_text(face="bold"),   
-    legend.position="bottom",
-    legend.background = element_rect(fill="lightgrey"), # Change legend box background color
-    plot.caption = element_text(color = "darkgrey", size=5)) + 
-  scale_fill_brewer(palette="Set1")
-bar_charts_increased
-
-bar_charts_selected_genes <- delta_gene_expr %>% 
-  filter(genes %in% c("TNFa","IL1b", "REG3G")) %>% 
-  mutate(
-    groups = recode_factor(  #Change the order of the groups to desired plot order
-      groups,
-      "con-bf"= "VANCO-BF",
-      "fvt-form" = "VANCO-FVF",
-      "sm-form" = "VANCO-SM"
-      )) %>% 
-  group_by(genes, groups) %>% 
-  summarise(mean_fold_change = mean(relative_fold_change)) %>% 
-  ggplot(
-    aes(x = groups,
-        y = mean_fold_change,
-        fill = groups)
-  ) + 
-  geom_col() +
-  facet_wrap(~genes,
-              scales = "free") +
-  labs(title = "Level of gene expression in ileum tissue - significant changes",
-       y = "Gene expression relative fold change",
-       x = "",
-       fill = "Groups",
-       caption = "Matrinem round 4") +
-  theme_bw()+
-  theme(                   # Change the appearance of labels
-    plot.title = element_text(color="darkgrey", size=12, face="bold"),
-    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
-    axis.ticks.x = element_blank(),  # Hide labels
-    axis.text.x = element_blank(),
-    legend.title = element_text(face="bold"),   
-    legend.position="bottom",
-    legend.background = element_rect(fill="lightgrey"), # Change legend box background color
-    plot.caption = element_text(color = "darkgrey", size=5)) + 
-  scale_fill_brewer(palette="Set1")
-
-bar_charts_selected_genes
-
+  filter(mean_fold_change < 0.6) 
+  
 ```
 
-```{r}
-delta_gene_expr %>% 
-  mutate(
-    groups = recode_factor(  #Change the order of the groups to desired plot order
-      groups,
-      "con-bf"= "CON-BF",
-      "fvt-form" = "VANCO-FVF",
-      "sm-form" = "VANCO-SM"
-      )) %>% 
+## Decreased plot
+```{r decreased plot}
+decreased_plot <- delta_gene_expr %>% 
+  filter(genes %in% decreased$genes) %>% 
+  #mutate(across(genes, factor, levels=c("MUC1","IL1b","REG3G"))) %>%
   group_by(genes, groups) %>% 
+  summarise(mean_fold_change = mean(relative_fold_change)) %>% 
   ggplot(
     aes(x = groups,
-        y = `2^-(ddct)`,
+        y = mean_fold_change,
         fill = groups)
   ) + 
-  geom_boxplot() +
+  geom_col() +
   facet_wrap(~genes,
-              scales = "free")
+             nrow = 1, 
+             scales = "free") + 
+  labs(
+       y = "Fold Δ",
+       x = "",
+       fill = "Groups") +
+  theme_bw()+
+  theme(                   
+    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.position = "none") + 
+    scale_fill_brewer(palette="Set1")
+decreased_plot
+```
+
+## No change 
+```{r no change}
+no_change <- delta_gene_expr %>% 
+  filter(!genes %in% c(increased$genes, decreased$genes))
+```
+
+## No change plot 
+```{r plot}
+no_change_plot <- no_change %>% 
+  group_by(genes, groups) %>% 
+  summarise(mean_fold_change = mean(relative_fold_change)) %>% 
+  ggplot(
+    aes(x = groups,
+        y = mean_fold_change,
+        fill = groups)
+  ) + 
+  geom_col() +
+  facet_wrap(~genes,
+             nrow = 1, 
+             scales = "free") +
+  labs(
+       y = "Fold Δ",
+       x = "",
+       fill = "Groups") +
+  theme_bw()+
+  theme(                   # Change the appearance of labels
+    plot.title = element_text(color="darkgrey", size=12, face="bold"),
+    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.title = element_text(face="bold"),   
+    legend.position="bottom",
+    legend.background = element_rect(fill="lightgrey"),
+    plot.caption = element_text(color = "darkgrey", size=5)) + 
+  scale_fill_brewer(palette="Set1")
+```
+
+## Patchwork
+```{r}
+in_de_no_patch <- (decreased_plot + increased_plot) / no_change_plot + plot_annotation(
+  title = "Gene expression relative fold change",
+  tag_levels = "A",
+  tag_suffix = ')',
+  caption = "A) Decreased relative expression.     B) Increased relative expression.     C) No change in gene expression."
+) & 
+  theme(plot.tag = element_text(size = 12),
+        plot.caption = element_text(face = "bold"))
+in_de_no_patch
+
 
 ```
 
