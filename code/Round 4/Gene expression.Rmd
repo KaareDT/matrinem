@@ -40,6 +40,65 @@ delta_gene_expr <- read_excel("data/processed/gene_expression_fold_changes.xlsx"
       ))
 ```
 
+## Statistical analysis of dCT levels 
+```{r}
+anova <- delta_gene_expr %>% 
+  group_by(genes) %>% 
+  anova_test(dct ~ groups) %>% 
+  ungroup()
+
+significant <- delta_gene_expr %>% 
+  group_by(genes) %>% 
+  do(lm(dct ~ groups,.) %>%  tidy) %>% 
+  filter(term != "(Intercept)") %>% 
+  filter(p.value <= 0.05)
+```
+
+## Add house gene to list
+```{r}
+wide_genes <- delta_gene_expr %>% 
+  select(sample_id,ct_value_house_gene_HRPT, groups, genes, dct) %>% 
+  pivot_wider(id_cols = c("sample_id","groups","ct_value_house_gene_HRPT"), names_from = genes, values_from = dct) %>% 
+  mutate(HRPT = ct_value_house_gene_HRPT) 
+```
+
+
+## TAble
+```{r}
+Exp4_genes_table <- delta_gene_expr %>% 
+  select(sample_id,ct_value_house_gene_HRPT, groups, genes, dct) %>% 
+  pivot_wider(id_cols = c("sample_id","groups","ct_value_house_gene_HRPT"), 
+              names_from = genes, 
+              values_from = dct) %>% 
+  mutate(
+    HRPT = ct_value_house_gene_HRPT)  %>% 
+  select(
+    -sample_id, -ct_value_house_gene_HRPT) %>% 
+  tbl_summary(by = groups,
+              digits = everything() ~ c(1,1),
+              missing = "no",
+              #include = !"INFg",
+              #type = all_continuous() ~ "continuous2",
+              statistic = all_continuous() ~ ("{mean} ({sd})")) %>%
+  modify_header(
+    label ~ "**Groups:**") %>% 
+   #modify_footnote(stat_1 ~ "Median (IQR)", stat_2 ~ "p-value on overall group differences,Kruskall-Wallis rank sum test ") %>% 
+add_p(everything() ~ "aov") %>% 
+  as_gt() %>%
+  tab_header(title = md("**Gene expression** *(dCT values)*")) %>%
+  opt_align_table_header("center") %>% 
+   tab_options(heading.title.font.size = 15,
+               heading.background.color = "lightgrey",
+               ) %>% 
+     tab_source_note(
+    source_note = "HRPT served as reference gene."
+  )
+
+Exp4_genes_table %>% 
+  gtsave(path = "exports/genes/", filename = "Exp4-gene-dct-table-aov.png")
+```
+
+
 ## Increased
 ```{r increased}
 increased <- delta_gene_expr %>% 

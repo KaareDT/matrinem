@@ -15,14 +15,60 @@ data <- read_excel("data/processed/weight_development.xlsx") %>%
   mutate(received_antibiotics = recode_factor(received_antibiotics, 
                                               yes = "MAT",
                                               no = "CON"))
-startweight <- data %>% 
-  filter(exp_number %in% c("1","3","4")) %>% 
+
+### effect of FEED on startweight ###
+
+data %>% 
+  filter(exp_number %in% c("1","2", "3","4")) %>% 
   filter(time %in% c("day_3", "day_5")) %>%
   drop_na(bodyweight) %>% 
   group_by(exp_number, type_of_feed, time) %>% 
   summarise(startweight = mean(bodyweight),
-            sd = sd(bodyweight))
+            sd = sd(bodyweight)) %>% 
+  filter(time == "day_3") %>% 
+  knitr::kable()
 
+
+data %>% 
+  filter(exp_number %in% c("1","3", "4")) %>% 
+  filter(time %in% c("day_3")) %>%
+  drop_na(bodyweight) %>% 
+  group_by(exp_number) %>% 
+  t_test(bodyweight ~ type_of_feed,
+         alternative = "two.sided",
+         mu = 0) %>% 
+  knitr::kable(espace = TRUE)
+
+### effect of MAT on startweight ###
+
+data %>% 
+  filter(exp_number %in% c("3")) %>% 
+  filter(time %in% c("day_3", "day_5")) %>%
+  drop_na(bodyweight) %>% 
+  group_by(exp_number, received_antibiotics, time) %>% 
+  summarise(startweight = mean(bodyweight),
+            sd = sd(bodyweight)) %>% 
+  filter(time == "day_5") %>% 
+  knitr::kable()
+
+data %>% 
+  filter(exp_number %in% c("3")) %>% 
+  filter(time %in% c("day_5")) %>%
+  drop_na(bodyweight) %>% 
+  group_by(exp_number) %>% 
+  anova_test(bodyweight ~ received_antibiotics) %>% 
+  knitr::kable(espace = TRUE)
+
+data %>% 
+  filter(exp_number %in% c("1","2","3")) %>% 
+  filter(time %in% c("day_5")) %>%
+  drop_na(bodyweight) %>% 
+  group_by(exp_number) %>% 
+  anova_test(bodyweight ~ received_antibiotics) %>% 
+  knitr::kable(espace = TRUE)
+
+
+### effect of MAT on birthweight ###
 birthweight <- data %>% 
   filter(exp_number %in% "2") %>% 
   filter(time %in% c("day_0", "day_1", "day_2")) %>%

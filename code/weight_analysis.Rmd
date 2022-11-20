@@ -53,6 +53,95 @@ startweight %>%
   arrange(time)
 ```
 
+## Weight at allocation - mat vs con
+```{r weight-at-allocation-mat-vs-con}
+get_box_stats <- function(y, upper_limit = max(data$bodyweight[data$time == "day_5"]) * 1.2) {
+  return(data.frame(
+    y =  0.9*upper_limit,
+    label = paste(
+      "n =", length(y), "\n",
+      "Mean =", round(mean(y), 2), "\n" #,
+      #"Median =", round(median(y), 2), "\n"
+    )
+  ))
+}
+
+my_comparisons <- list( c("CON", "MAT"))
+
+data %>% 
+  #filter(exp_number %in% c("1", "2", "3","4")) %>% 
+  filter(time %in% c("day_3")) %>%
+  drop_na(bodyweight) %>% 
+  ggplot(
+    aes(x = received_antibiotics,
+        y = bodyweight)
+  ) +
+  geom_boxplot() +
+  geom_dotplot(
+     binaxis = "y", stackdir = "center", dotsize = 0.5) +
+  facet_grid(~ exp_number) +
+  stat_summary(
+    fun.data = get_box_stats, geom = "text", hjust = 0.5, vjust = 0.9) +
+  labs(
+    #title = "Body weight of offspring from antibiotic-treated vs water-treated mice",
+   # subtitle = "Results shown from each of the 4 experimental rounds",
+    caption = "In Exp. 4 all mice received antibiotoics, hence no control.
+    Comparison method: Student T-test",
+    x = "Maternal Treatment",
+    y = "Bodyweight at end of study (g)"
+  ) +
+  theme_bw() + 
+  stat_compare_means(
+    method = "t.test", 
+    label.y = 3, 
+    comparisons = my_comparisons
+    )
+```
+
+## Weight at allocation - form vs BF
+```{r weight-at-allocation-ff-vs-bf}
+get_box_stats <- function(y, upper_limit = max(data$bodyweight[data$time == "day_5"]) * 1.2) {
+  return(data.frame(
+    y =  0.9*upper_limit,
+    label = paste(
+      "n =", length(y), "\n",
+      "Mean =", round(mean(y), 2), "\n" #,
+      #"Median =", round(median(y), 2), "\n"
+    )
+  ))
+}
+
+my_comparisons <- list( c("BF", "FF"))
+
+data %>% 
+  #filter(exp_number %in% c("1", "2", "3","4")) %>% 
+  filter(time %in% c("day_5")) %>%
+  drop_na(bodyweight) %>% 
+  ggplot(
+    aes(x = type_of_feed,
+        y = bodyweight)
+  ) +
+  geom_boxplot() +
+  geom_dotplot(
+     binaxis = "y", stackdir = "center", dotsize = 0.5) +
+  facet_grid(~ exp_number) +
+  stat_summary(
+    fun.data = get_box_stats, geom = "text", hjust = 0.5, vjust = 0.9) +
+  labs(
+    #title = "Body weight of offspring from antibiotic-treated vs water-treated mice",
+   # subtitle = "Results shown from each of the 4 experimental rounds",
+    caption = " Comparison method: Student T-test",
+    x = "Type of feed",
+    y = "Bodyweight at end of study (g)"
+  ) +
+  theme_bw() + 
+  stat_compare_means(
+    method = "t.test", 
+    label.y = 4.35, 
+    comparisons = my_comparisons
+    )
+```
+
 #_birthweight in exp 2_
 ```{r}
 birthweight <- data %>% 
@@ -182,7 +271,7 @@ bodyweight_develop_patch
 ### Research Question 1: Body weight of offspring from water and antibiotic-treated mice at baseline
 
 ```{r style baseline bodyweight}
-get_box_stats <- function(y, upper_limit = max(data$Bodyweight[data$Time == "Day2"]) * 1.0) {
+get_box_stats <- function(y, upper_limit = max(data$bodyweight[data$time == "day_5"]) * 1.0) {
   return(data.frame(
     y = 0.9 * upper_limit,
     label = paste(
@@ -193,15 +282,15 @@ get_box_stats <- function(y, upper_limit = max(data$Bodyweight[data$Time == "Day
   ))
 }
 
-my_comparisons <- list( c("Water", "AB"))
+my_comparisons <- list( c("CON", "MAT"))
 
 data %>% 
-  filter(Time == "Day2") %>% 
+  filter(time %in% c("day_3", "day_5")) %>% 
   ggplot(aes(
-    received_antibiotic, Bodyweight
+    time, bodyweight
   )) + 
   geom_boxplot() +
-  facet_wrap(~experiment_no, 
+  facet_wrap(~ exp_number, 
              nrow = 1) + 
   geom_dotplot(
      binaxis = "y", stackdir = "center", dotsize = 0.5) + 
@@ -232,7 +321,7 @@ bodyweight_gain_BFvsFORM <- data %>%
     type_of_feed, weightgain
   )) + 
   geom_boxplot() +
-  facet_wrap(~experiment_no, 
+  facet_wrap(~exp_number, 
              nrow = 1) +
 geom_dotplot(
      binaxis = "y", stackdir = "center", dotsize = 0.5) + 
