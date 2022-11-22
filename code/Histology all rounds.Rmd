@@ -1,0 +1,105 @@
+---
+title: "HISTO1"
+author: "Kaare"
+date: "6/27/2022"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# MATRINEM histo-analysis. 
+AB-PAS stains quantified as % of total tissue. Experiments 2-4 collected samples for histology.
+
+Samples are of ileum (small intestine) and colon collected from mouse pups 6 days postnatally.
+
+```{r load packages, include=FALSE}
+# Packages required
+library(readxl)
+library(tidyverse)
+library(broom)
+library(ggpubr)
+library(rstatix)
+library(patchwork)
+```
+
+## Load data
+```{r data load}
+data <- read_excel("data/raw/Histo_analysis .xlsx")
+
+allrounds <- read_excel("data/processed/weight_development.xlsx")
+
+```
+
+```{r}
+clean_data <- data %>% 
+  mutate(ID = str_remove(ID, "-C") %>% str_remove(.,"-I") %>% str_remove(.," I")) %>% 
+  mutate(ID = as.numeric(ID))
+
+filter_joined_df <- semi_join(allrounds, clean_data, by = c("sample_id" = "ID")) 
+
+histo <- filter_joined_df %>% 
+  inner_join(clean_data, by = c("sample_id" = "ID"))
+
+histo <- histo %>% 
+  pivot_longer(., `PAS-RELATIVE-TO-TOTAL(%)`:`AB-RELATIVE-TO-TOTAL(%)`, 
+               names_to = "AB-PAS",
+               values_to = "values")
+  
+
+```
+
+
+```{r}
+histo %>%  ### Try to wrap histo longer to have all stain values in 1 column and facet-wrap by PAS + AB
+  filter(TISSUE == "ileum") %>%
+  filter('AB-PAS' == "PAS-RELATIVE-TO-TOTAL(%)") %>% 
+  ggplot(
+    aes(
+    x = group2, 
+    y = values,
+    fill = group2)
+    ) +
+  geom_boxplot(outlier.shape = NA) +
+  facet_wrap(~ exp_number,
+             scales = "free") +
+  labs(
+    #title =  "Ileum AB-PAS staining % of total tissue", subtitle = "Faceted by experimental round (2-4)",
+       y = "PAS stained as % of total tissue",
+       x = "Maternal Treatment") + 
+  theme_bw() +
+  theme(
+    axis.text.x = element_blank()
+  )
+
+```
+
+
+```{r MAT vs CON}
+histo %>% 
+  filter(TISSUE == "colon") %>% 
+   ggplot(aes(x = received_antibiotics, y = `% of total tissue stained`)) +
+  geom_boxplot() + 
+  facet_wrap(~ exp_number) +
+  labs(title =  "COLON AB-PAS staining % of total tissue", subtitle = "Faceted by experimental round (2-4)",
+       x = "Maternal Treatment") + 
+  theme_bw()
+
+```
+
+
+```{r MAT vs CON}
+histo %>% 
+  filter(TISSUE == "colon") %>% 
+   ggplot(aes(x = received_antibiotics, y = `% of total tissue stained`)) +
+  geom_boxplot() + 
+  facet_wrap(~ exp_number) +
+  labs(title =  "COLON AB-PAS staining % of total tissue", subtitle = "Faceted by experimental round (2-4)",
+       x = "Maternal Treatment") + 
+  theme_bw()
+
+```
+
