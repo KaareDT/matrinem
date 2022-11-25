@@ -28,9 +28,15 @@ library(patchwork)
 
 ## Load data
 ```{r data load}
-data <- read_excel("data/raw/Histo_analysis .xlsx")
+data <- read_excel("data/raw/Histo_analysis .xlsx") %>% 
+  rename(pas_pct = `PAS-RELATIVE-TO-TOTAL(%)`,
+         ab_pct = `AB-RELATIVE-TO-TOTAL(%)`) %>% 
+  mutate(AB_PAS_pct = (ab_pct +pas_pct)/2) %>% 
+  mutate(tissue = if_else(TISSUE == "colon","Colon","Ileum")) 
 
-allrounds <- read_excel("data/processed/weight_development.xlsx")
+
+allrounds <- read_excel("data/processed/weight_development.xlsx")  %>% 
+  select(-c(cage:comments))
 
 ```
 
@@ -42,64 +48,326 @@ clean_data <- data %>%
 filter_joined_df <- semi_join(allrounds, clean_data, by = c("sample_id" = "ID")) 
 
 histo <- filter_joined_df %>% 
-  inner_join(clean_data, by = c("sample_id" = "ID"))
-
-histo <- histo %>% 
-  pivot_longer(., `PAS-RELATIVE-TO-TOTAL(%)`:`AB-RELATIVE-TO-TOTAL(%)`, 
-               names_to = "AB-PAS",
-               values_to = "values")
-  
-
+  inner_join(clean_data, by = c("sample_id" = "ID")) %>% 
+  rename(Group = group2)
 ```
 
-
-```{r}
-histo %>%  ### Try to wrap histo longer to have all stain values in 1 column and facet-wrap by PAS + AB
-  filter(TISSUE == "ileum") %>%
-  filter('AB-PAS' == "PAS-RELATIVE-TO-TOTAL(%)") %>% 
+# Exp2 
+```{r Exp2-ileum}
+Exp2_plot_histo <- histo %>% 
+  #filter(TISSUE == "ileum") %>%
+  filter(exp_number == 2) %>% 
   ggplot(
     aes(
-    x = group2, 
-    y = values,
-    fill = group2)
+    x = Group, 
+    y = AB_PAS_pct,
+    fill = Group)
+    ) +
+  facet_wrap(~tissue,
+             scales = "free")+
+  geom_boxplot(outlier.shape = NA) +
+  geom_point() +
+  #coord_cartesian(ylim = c(0, 10)) +
+  stat_compare_means(aes(label = ..p.signif.., ),
+                   method = "wilcox.test", ref.group = "CON-BF",
+                   label.y.npc = 0.85) +
+  labs(
+    #title =  ,
+       y = "Mucin (% of total tissue)",
+       x = "") + 
+  theme_bw()+
+  theme(                   # Change the appearance of labels
+    plot.title = element_text(color="darkgrey", size=12, face="bold"),
+    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    #axis.text.y = element_blank(),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.title = element_text(face="bold"),   
+    legend.position="bottom",
+    legend.background = element_rect(fill="white")) + # Change legend box background color
+  scale_fill_brewer(palette="Set1") + plot_annotation (
+  title = "Image analytical quantification of mycin",
+   #subtitle = 'All cytokines measured',
+  #tag_levels = 'A',
+  #caption = 'CON = Water, BF = Breast-Feeding, GENTA = Gentamicin, VANCO = Vancomycin,',
+  theme = theme(plot.title = element_text(hjust = 0.5, size=14, face="bold")))
+  
+Exp2_plot_histo
+ ggsave(width = 110, height = 110, units = "mm", 'exports/histo/Exp2-ab_pas_plot.png',Exp2_plot_histo)
+
+```
+
+# Exp3 
+```{r Exp3-ileum}
+Exp3_plot_histo <- histo %>% 
+  filter(Group != "VANCO-BF") %>%
+  filter(exp_number == 3) %>% 
+  ggplot(
+    aes(
+    x = Group, 
+    y = AB_PAS_pct,
+    fill = Group)
+    ) +
+  facet_wrap(~tissue,
+             scales = "free")+
+  geom_boxplot(outlier.shape = NA) +
+  geom_point() +
+  #coord_cartesian(ylim = c(0, 10)) +
+  stat_compare_means(aes(label = ..p.signif.., ),
+                   method = "wilcox.test", ref.group = "CON-BF",
+                   label.y.npc = 0.85) +
+  labs(
+    #title =  ,
+       y = "Mucin (% of total tissue)",
+       x = "") + 
+  theme_bw()+
+  theme(                   # Change the appearance of labels
+    plot.title = element_text(color="darkgrey", size=12, face="bold"),
+    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    #axis.text.y = element_blank(),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.title = element_text(face="bold"),   
+    legend.position="bottom",
+    legend.background = element_rect(fill="white")) + # Change legend box background color
+  scale_fill_brewer(palette="Set1") + plot_annotation (
+  title = "Image analytical quantification of mycin",
+   #subtitle = 'All cytokines measured',
+  #tag_levels = 'A',
+  #caption = 'CON = Water, BF = Breast-Feeding, GENTA = Gentamicin, VANCO = Vancomycin,',
+  theme = theme(plot.title = element_text(hjust = 0.5, size=14, face="bold")))
+  
+Exp3_plot_histo
+ ggsave(width = 170, height = 110, units = "mm", 'exports/histo/Exp3-ab_pas_plot.png',Exp3_plot_histo)
+
+```
+
+
+```{r MAT vs CON}
+histo %>% 
+  filter(TISSUE == "colon") %>% 
+   ggplot(aes(x = received_antibiotics, y = `% of total tissue stained`)) +
+  geom_boxplot() + 
+  facet_wrap(~ exp_number) +
+  labs(title =  "COLON AB-PAS staining % of total tissue", subtitle = "Faceted by experimental round (2-4)",
+       x = "Maternal Treatment") + 
+  theme_bw()
+
+```
+
+# Exp4 
+```{r Exp4-ileum}
+Exp4_plot_histo <- histo %>% 
+  #filter(TISSUE == "ileum") %>%
+  filter(exp_number == 4) %>% 
+  ggplot(
+    aes(
+    x = Group, 
+    y = AB_PAS_pct,
+    fill = Group)
+    ) +
+  facet_wrap(~tissue,
+             scales = "free")+
+  geom_boxplot(outlier.shape = NA) +
+  geom_point() +
+  #coord_cartesian(ylim = c(0, 10)) +
+  stat_compare_means(aes(label = ..p.signif.., ),
+                   method = "wilcox.test", ref.group = "VANCO-SM",
+                   label.y.npc = 0.85) +
+  labs(
+    #title =  ,
+       y = "Mucin (% of total tissue)",
+       x = "") + 
+  theme_bw()+
+  theme(                   # Change the appearance of labels
+    plot.title = element_text(color="darkgrey", size=12, face="bold"),
+    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    #axis.text.y = element_blank(),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.title = element_text(face="bold"),   
+    legend.position="bottom",
+    legend.background = element_rect(fill="white")) + # Change legend box background color
+  scale_fill_brewer(palette="Set1") + plot_annotation (
+  title = "Image analytical quantification of mycin",
+   #subtitle = 'All cytokines measured',
+  #tag_levels = 'A',
+  #caption = 'CON = Water, BF = Breast-Feeding, GENTA = Gentamicin, VANCO = Vancomycin,',
+  theme = theme(plot.title = element_text(hjust = 0.5, size=14, face="bold")))
+  
+Exp4_plot_histo
+ ggsave(width = 110, height = 110, units = "mm", 'exports/histo/Exp4-ab_pas_plot.png',Exp4_plot_histo)
+
+```
+
+# Overall MAT
+```{r overall-mat}
+histo_overall_colon <- histo %>% 
+  filter(tissue == "Colon") %>%
+  filter(exp_number != 4) %>% 
+  ggplot(
+    aes(
+    x = received_antibiotics, 
+    y = AB_PAS_pct,
+    fill = received_antibiotics)
     ) +
   geom_boxplot(outlier.shape = NA) +
-  facet_wrap(~ exp_number,
+  geom_point() +
+  facet_wrap(~exp_number,
              scales = "free") +
+  #coord_cartesian(ylim = c(0, 40)) +
+  stat_compare_means(aes(label = paste0("p = ", ..p.format..)),
+                   method = "wilcox.test", ref.group = "No",
+                   label.y.npc = 0.85) +
   labs(
-    #title =  "Ileum AB-PAS staining % of total tissue", subtitle = "Faceted by experimental round (2-4)",
-       y = "PAS stained as % of total tissue",
-       x = "Maternal Treatment") + 
-  theme_bw() +
-  theme(
-    axis.text.x = element_blank()
-  )
+    #title =  ,
+      y = "Mucin (% of total tissue)",
+       x = "",
+       fill='') + 
+  theme_bw()+
+  theme(                   # Change the appearance of labels
+    plot.title = element_text(color="darkgrey", size=12, face="bold"),
+    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    #axis.text.y = element_blank(),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.title = element_blank()) +  
+  #legend.background = element_rect(fill="white")) + # Change legend box background color
+  scale_fill_brewer(palette="Set1") 
+
+histo_overall_colon
+
+histo_overall_ileum <- histo %>% 
+  filter(tissue == "Ileum") %>%
+  filter(exp_number != 4) %>% 
+  ggplot(
+    aes(
+    x = received_antibiotics, 
+    y = AB_PAS_pct,
+    fill = received_antibiotics)
+    ) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_point() +
+  facet_wrap(~exp_number,
+             scales = "free") +
+  #coord_cartesian(ylim = c(0, 40)) +
+  stat_compare_means(aes(label = paste0("p = ", ..p.format..)),
+                   method = "wilcox.test", ref.group = "No",
+                   label.y.npc = 0.85) +
+  labs(
+    #title =  ,
+      y = "Mucin (% of total tissue)",
+       x = "",
+      fill='Maternal Antibiotic Treatment') +
+  theme_bw()+
+  theme(                   # Change the appearance of labels
+    plot.title = element_text(color="darkgrey", size=12, face="bold"),
+    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    #axis.text.y = element_blank(),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.title = element_text(face="bold"),   
+    legend.position="bottom",
+    legend.background = element_rect(fill="white")) + # Change legend box background color
+  scale_fill_brewer(palette="Set1") 
+
+histo_overall_ileum
+
+histo_overall_both <- (histo_overall_colon/histo_overall_ileum) + plot_annotation (
+  title = "Effect of Maternal Antibiotics Treatment on intestinal mucin",
+   #subtitle = 'All cytokines measured',
+  tag_levels = 'A',
+  #caption = 'CON = Water, BF = Breast-Feeding, GENTA = Gentamicin, VANCO = Vancomycin,',
+  theme = theme(plot.title = element_text(hjust = 0.5, size=14, face="bold")))
+  
+histo_overall_both
+ ggsave(width = 110, height = 110, units = "mm", 'exports/histo/Hist_MAT',histo_overall_both)
+ ggsave('exports/histo/Hist_MAT.png', histo_overall_both)
 
 ```
 
+# Overall FEED
+```{r overall-mat}
+histo_FEED_colon <- histo %>% 
+  filter(tissue == "Colon") %>%
+  filter(exp_number != 2) %>% 
+  ggplot(
+    aes(
+    x = type_of_feed, 
+    y = AB_PAS_pct,
+    fill = type_of_feed)
+    ) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_point() +
+  facet_wrap(~exp_number,
+             scales = "free") +
+  #coord_cartesian(ylim = c(0, 40)) +
+  stat_compare_means(aes(label = paste0("p = ", ..p.format..)),
+                   method = "wilcox.test", ref.group = "BF",
+                   label.y.npc = 0.85) +
+  labs(
+    #title =  ,
+      y = "Mucin (% of total tissue)",
+       x = "",
+       fill='') + 
+  theme_bw()+
+  theme(                   # Change the appearance of labels
+    plot.title = element_text(color="darkgrey", size=12, face="bold"),
+    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    #axis.text.y = element_blank(),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.title = element_blank()) +  
+  #legend.background = element_rect(fill="white")) + # Change legend box background color
+  scale_fill_brewer(palette="Set1") 
 
-```{r MAT vs CON}
-histo %>% 
-  filter(TISSUE == "colon") %>% 
-   ggplot(aes(x = received_antibiotics, y = `% of total tissue stained`)) +
-  geom_boxplot() + 
-  facet_wrap(~ exp_number) +
-  labs(title =  "COLON AB-PAS staining % of total tissue", subtitle = "Faceted by experimental round (2-4)",
-       x = "Maternal Treatment") + 
-  theme_bw()
+histo_FEED_colon
+
+histo_FEED_ileum <- histo %>% 
+  filter(tissue == "Ileum") %>%
+  filter(exp_number != 2) %>% 
+  ggplot(
+    aes(
+    x = type_of_feed, 
+    y = AB_PAS_pct,
+    fill = type_of_feed)
+    ) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_point() +
+  facet_wrap(~exp_number,
+             scales = "free") +
+  #coord_cartesian(ylim = c(0, 40)) +
+  stat_compare_means(aes(label = paste0("p = ", ..p.format..)),
+                   method = "wilcox.test", ref.group = "BF",
+                   label.y.npc = 0.85) +
+  labs(
+    #title =  ,
+      y = "Mucin (% of total tissue)",
+       x = "",
+      fill='Maternal Antibiotic Treatment') +
+  theme_bw()+
+  theme(                   # Change the appearance of labels
+    plot.title = element_text(color="darkgrey", size=12, face="bold"),
+    axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    #axis.text.y = element_blank(),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.title = element_text(face="bold"),   
+    legend.position="bottom",
+    legend.background = element_rect(fill="white")) + # Change legend box background color
+  scale_fill_brewer(palette="Set1") 
+
+histo_FEED_ileum
+
+histo_FEED_both <- (histo_FEED_colon/histo_FEED_ileum) + plot_annotation (
+  title = "Effect of formula or breastmilk on intestinal mucin",
+   #subtitle = 'All cytokines measured',
+  tag_levels = 'A',
+  #caption = 'CON = Water, BF = Breast-Feeding, GENTA = Gentamicin, VANCO = Vancomycin,',
+  theme = theme(plot.title = element_text(hjust = 0.5, size=14, face="bold")))
+  
+histo_FEED_both
+ ggsave(width = 110, height = 110, units = "mm", 'exports/histo/Hist_MAT',histo_overall_both)
+ ggsave('exports/histo/Hist_FEED.png', histo_FEED_both)
 
 ```
-
-
-```{r MAT vs CON}
-histo %>% 
-  filter(TISSUE == "colon") %>% 
-   ggplot(aes(x = received_antibiotics, y = `% of total tissue stained`)) +
-  geom_boxplot() + 
-  facet_wrap(~ exp_number) +
-  labs(title =  "COLON AB-PAS staining % of total tissue", subtitle = "Faceted by experimental round (2-4)",
-       x = "Maternal Treatment") + 
-  theme_bw()
-
-```
-
