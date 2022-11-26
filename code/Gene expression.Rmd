@@ -28,6 +28,17 @@ library(patchwork)
 # Gene expression in Matrinem Experiment 4
 
 
+library(g)
+library(facetscales)
+scales_y <- list(
+  `4` = scale_y_continuous(limits = c(5, 25), breaks = seq(5, 25, 5)),
+  `f` = scale_y_continuous(limits = c(0, 40), breaks = seq(0, 40, 10)),
+  `r` = scale_y_continuous(limits = c(10, 20), breaks = seq(10, 20, 2))
+)
+ggplot(mpg, aes(displ, cty)) + 
+  geom_point() + 
+  facet_grid_sc(rows = vars(drv), scales = list(y = scales_y))
+
 ```{r}
 delta_gene_expr <- read_excel("data/processed/gene_expression_fold_changes.xlsx") %>%
    mutate(
@@ -41,16 +52,26 @@ delta_gene_expr <- read_excel("data/processed/gene_expression_fold_changes.xlsx"
 
 ## Statistical analysis of dCT levels 
 ```{r}
-anova <- delta_gene_expr %>% 
-  group_by(genes) %>% 
-  anova_test(dct ~ groups) %>% 
-  ungroup()
-
 significant <- delta_gene_expr %>% 
   group_by(genes) %>% 
   do(lm(dct ~ groups,.) %>%  tidy) %>% 
   filter(term != "(Intercept)") %>% 
   filter(p.value <= 0.05)
+
+anova <- delta_gene_expr %>% 
+  group_by(genes) %>% 
+  rstatix::anova_test(dct ~ groups)
+  
+tukey <- delta_gene_expr %>% 
+  group_by(genes) %>% 
+  rstatix::tukey_hsd(dct ~ groups) %>% 
+  filter(p.adj < 0.05) %>% 
+  flextable::as_flextable()
+
+
+
+delta_gene_expr$group
+
 ```
 
 ## Add house gene to list
@@ -114,27 +135,76 @@ delta_gene_expr %>%
        y = "Gene expression fold change",
        x = "Groups"
       )
+```
 
-delta_gene_expr %>% 
+## decreased_fold_change
+```{r decreased-fold-change}
+decreased_fold_change <- delta_gene_expr %>% 
+  filter(genes %in% tukey$genes) %>% 
+  filter(!genes %in% c("IL1b","REG3G")) %>% 
+  mutate(across(genes, factor, levels=c("TGFb","cldn15","TJP1","VEGFa","Ocld1"))) %>%
   group_by(genes, groups) %>% 
   ggplot(
     aes(x = groups,
         y = `2^-(ddct)`,
         fill = groups)
   ) + 
-  geom_boxplot() +
+  geom_boxplot(outlier.fill = NA,
+               outlier.shape = NA) +
   facet_wrap(~genes,
              ncol = 5,
              scales = "free") +
-  labs(title = "Gene expression fold change",
-       y = "Gene expression fold change",
-       x = "Groups"
-      )
+   stat_compare_means(comparisons = my_comparisons, method = "wilcox.test", label.y = c(1.2,1.4)) +
+  labs(
+       y = "Fold Δ",
+       x = "",
+       fill = "Groups") +
+  theme_bw()+
+  theme(                   
+    #axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.position = "none") + 
+    scale_fill_brewer(palette="Set1")
+  decreased_fold_change
+ 
+```
 
+## Increased fold change
+```{r increased-fold-change}
+increased_fold_change <- delta_gene_expr %>% 
+  #filter(genes %in% tukey$genes) %>% 
+  filter(genes %in% c("IL1b","REG3G")) %>% 
+ # mutate(across(genes, factor, levels=c("TGFb","cldn15","TJP1","VEGFa","Ocld1"))) %>%
+  group_by(genes, groups) %>% 
+  ggplot(
+    aes(x = groups,
+        y = `2^-(ddct)`,
+        fill = groups)
+  ) + 
+  geom_boxplot(outlier.fill = NA,
+               outlier.shape = NA) +
+  facet_wrap(~genes,
+             ncol = 2,
+             scales = "free") +
+   stat_compare_means(comparisons = my_comparisons, method = "wilcox.test", label.y.npc = c(0.5)) +
+  labs(
+       y = "Fold Δ",
+       x = "",
+       fill = "Groups") +
+  theme_bw()+
+  theme(                   
+    #axis.title.y = element_text(color="darkgrey", size=10, face="bold.italic"),
+    axis.ticks.x = element_blank(),  # Hide labels
+    axis.text.x = element_blank(),
+    legend.position = "none") + 
+    scale_fill_brewer(palette="Set1")
+  increased_fold_change
+ 
 ```
 
 ```{r}
-my_comparisons <- list(c("VANCO-FVF", "VANCO-SM"), c("VANCO-BF", "VANCO-FVF"))
+my_comparisons <- list(c("VANCO-BF", "VANCO-FVF"), c("VANCO-SM", "VANCO-FVF"))
 ```
 
 
