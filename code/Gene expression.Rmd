@@ -32,11 +32,10 @@ library(patchwork)
 delta_gene_expr <- read_excel("data/processed/gene_expression_fold_changes.xlsx") %>%
    mutate(
     groups = recode_factor(  #Change the order of the groups to desired plot order
-      groups,
-      "con-bf"= "VANCO-BF",
-      "sm-form" = "VANCO-SM",
-      "fvt-form" = "VANCO-FVF"
-      
+      group,
+      "CON-BF"= "VANCO-BF",
+      "SM-FORM" = "VANCO-SM",
+      "FVT-FORM" = "VANCO-FVF"
       ))
 ```
 
@@ -98,12 +97,52 @@ Exp4_genes_table %>%
   gtsave(path = "exports/genes/", filename = "Exp4-gene-dct-table-aov.png")
 ```
 
+```{r}
+delta_gene_expr %>% 
+  group_by(genes, groups) %>% 
+  summarise(mean_fold_change = mean(`2^-(ddct)`)) %>% 
+  ggplot(
+    aes(x = groups,
+        y = mean_fold_change,
+        fill = groups)
+  ) + 
+  geom_bar(position = "dodge", stat = "summary", fun = "mean") +
+  facet_wrap(~genes,
+             ncol = 5,
+             scales = "free") +
+  labs(title = "Gene expression fold change",
+       y = "Gene expression fold change",
+       x = "Groups"
+      )
+
+delta_gene_expr %>% 
+  group_by(genes, groups) %>% 
+  ggplot(
+    aes(x = groups,
+        y = `2^-(ddct)`,
+        fill = groups)
+  ) + 
+  geom_boxplot() +
+  facet_wrap(~genes,
+             ncol = 5,
+             scales = "free") +
+  labs(title = "Gene expression fold change",
+       y = "Gene expression fold change",
+       x = "Groups"
+      )
+
+```
+
+```{r}
+my_comparisons <- list(c("VANCO-FVF", "VANCO-SM"), c("VANCO-BF", "VANCO-FVF"))
+```
+
 
 ## Increased
 ```{r increased}
 increased <- delta_gene_expr %>% 
  group_by(genes, groups) %>% 
-  summarise(mean_fold_change = mean(relative_fold_change)) %>% 
+  summarise(mean_fold_change = mean(`2^-(ddct)`)) %>% 
   filter(mean_fold_change >= 1.75)
 ```
 
@@ -111,15 +150,15 @@ increased <- delta_gene_expr %>%
 ```{r increased plot}
 increased_plot <- delta_gene_expr %>% 
   filter(genes %in% increased$genes) %>% 
-  mutate(across(genes, factor, levels=c("TNFa","MUC1","IL1b","REG3G"))) %>%
+  mutate(across(genes, factor, levels=c("CXCL1","TNFa","MUC1","IL1b","REG3G"))) %>%
   group_by(genes, groups) %>% 
-  summarise(mean_fold_change = mean(relative_fold_change)) %>% 
   ggplot(
     aes(x = groups,
-        y = mean_fold_change,
+          y = `2^-(ddct)`,
         fill = groups)
-  ) + 
-  geom_col() +
+  ) +
+  #geom_boxplot() +
+  geom_bar(position = "dodge", stat = "summary", fun = "mean") +
   facet_wrap(~genes,
              nrow = 1, 
              scales = "free") + 
@@ -133,7 +172,12 @@ increased_plot <- delta_gene_expr %>%
     axis.ticks.x = element_blank(),  # Hide labels
     axis.text.x = element_blank(),
     legend.position = "none") + 
-    scale_fill_brewer(palette="Set1")
+    scale_fill_brewer(palette="Set1") +
+  stat_compare_means(aes(label = ..p.signif..),
+                   method = "wilcox.test", ref.group = "VANCO-BF",
+                   label.y.npc = c(0.55,0.45),
+                   label.x = c(3,1))
+  #stat_compare_means(comparisons = my_comparisons, label.y.npc = c(0.3,0.5), method = "wilcox.test") 
   increased_plot
 ```
 

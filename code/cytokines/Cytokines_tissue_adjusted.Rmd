@@ -108,9 +108,9 @@ Exp1_tissue_weight <- cytokines_long %>%
   labs(
     title = "Tissue weight of intestinal samples, experiment 1",
     y = "Tissue weight (mg)",
-    x = "",
-    caption = "Pairwise comparison with CON-BF as reference. \n
-    **: p < 0.01, *: p < 0.05, NS: not significant."
+    x = ""
+    #caption = "Pairwise comparison with CON-BF as reference. \n
+    #**: p < 0.01, *: p < 0.05, NS: not significant."
   ) 
 Exp1_tissue_weight
 ggsave(width = 170, height = 120, units = "mm",'exports/cytokines/Exp1-weights-of-tissue.png',Exp1_tissue_weight)
@@ -294,9 +294,9 @@ Exp2_tissue_weight <- cytokines_long %>%
   labs(
     title = "Tissue weight of intestinal samples, experiment 2",
     y = "Tissue weight (mg)",
-    x = "",
-    caption = "Pairwise comparison with CON-BF as reference. \n
-    **: p < 0.01, *: p < 0.05, NS: not significant."
+    x = ""
+    #caption = "Pairwise comparison with CON-BF as reference. \n
+    #**: p < 0.01, *: p < 0.05, NS: not significant."
   ) 
 ggsave(width = 170, height = 120, units = "mm",'exports/cytokines/Exp2-weights-of-tissue.png',Exp2_tissue_weight)
 
@@ -459,6 +459,7 @@ cytokines_long %>%
 #_____Weight of tissue samples_____#
 Exp3_tissue_weight <- cytokines_long %>%       
    filter(exp_number == 3) %>%
+  filter(group != "VANCO-BF") %>% 
   ggplot(aes(x = group, y = tissue_weight_mg, fill = group)) + 
   geom_boxplot() +
   stat_compare_means(aes(label = ..p.signif..),
@@ -467,14 +468,14 @@ Exp3_tissue_weight <- cytokines_long %>%
   stat_compare_means(method = "kruskal.test",
     aes(label = paste0("Kruskal Wallis Test. \n p = ", ..p.format..)),
     label.y.npc = 0.75,
-    label.x.npc = 0.3) +
+    label.x.npc = 0.5) +
   geom_point() +
   labs(
     title = "Tissue weight of intestinal samples, experiment 3",
     y = "Tissue weight (mg)",
-    x = "",
-    caption = "Pairwise comparison with CON-BF as reference. \n
-    **: p < 0.01, *: p < 0.05, NS: not significant."
+    x = ""
+    #caption = "Pairwise comparison with CON-BF as reference. \n
+    #**: p < 0.01, *: p < 0.05, NS: not significant."
   ) 
 ggsave(width = 170, height = 120, units = "mm",'exports/cytokines/Exp3-weights-of-tissue.png',Exp3_tissue_weight)
 
@@ -666,9 +667,9 @@ Exp4_tissue_weight <- cytokines_long %>%
   labs(
     title = "Tissue weight of intestinal samples, experiment 4",
     y = "Tissue weight (mg)",
-    x = "",
-    caption = "Pairwise comparison with VANCO-BF as reference. \n
-    ****: p < 0.0005, ***: p < 0.001, NS: not significant."
+    x = ""
+    #caption = "Pairwise comparison with VANCO-BF as reference. \n
+    #****: p < 0.0005, ***: p < 0.001, NS: not significant."
   ) 
 ggsave(width = 170, height = 120, units = "mm",'exports/cytokines/Exp4-weights-of-tissue.png',Exp4_tissue_weight)
 
