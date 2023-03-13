@@ -14,3 +14,5 @@ Everything in here is for R and Rstudio, and I advise you to work from within th
 I hope you enjoy whatever you find. For questions or requests, please contact cxb592@ku.dk. 
 
 Kaare Nov 2022
+
+March 13th 2023: Let's publish this
