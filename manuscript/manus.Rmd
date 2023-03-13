@@ -1,0 +1,103 @@
+---
+output:
+  bookdown::pdf_document2: 
+    toc: no
+    keep_tex: yes
+  #bookdown::word_document2: default
+fig_caption: yes
+always_allow_html: yes
+bibliography: 
+  references.bib
+#csl: biomed-central.csl #get Zotero running to work
+# These are LaTex settings to take care of floating figures/tables, line spacing, etc
+header-includes:
+  - \usepackage{endfloat}    
+  - \usepackage{setspace}\doublespacing
+  - \usepackage{lineno}
+  - \linenumbers
+  - \usepackage[utf8]{inputenc}
+  #- \DeclareUnicodeCharacter{0301}{*******} #Used for finding Unicode Errors in PDF
+---
+
+```{r Setup..., message=FALSE, warning=FALSE, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'p') # Places figures on their own pages
+knitr::opts_chunk$set(out.width = '100%', dpi=300)
+
+# Load packages
+library(bookdown); library(knitr); library(kableExtra); library(tidyverse); library(here); library(readxl)
+
+```
+
+# The great Matrinem Study
+
+\vspace{20 mm}
+
+Kaare D. Tranaes${^1}$, Anders Brunse${^2}$${^\dagger}$
+
+\vspace{10 mm}
+
+${^1}$ Department of Food Microbiology, UCPH  
+${^2}$AEM, SUND  
+
+${^\dagger}$ To whom correspondance should be adressed
+
+
+\newpage
+
+## Abstract:
+
+## Introduction
+
+### About Necrotizing Entericolitis
+
+Nescrotizing Enterocolitis (NEC) is a devastating inflammatory and necrotic bowel disease, representing the leading cause of death in premature infants [@Nio2016]. It is estimated that upwards of 10% of neonates born before week 33 of gestation are affected. The disease is largely incurable, and mortality ranges from 20-50% depending on disease severity [@Alsaied2020]. Those who survive often do so with severe, life-long complications [@Papillon2013]. There is no universal definition of NEC [@Patel2020], and entities use different protocols for diagnosing the disease. The most commonly used diagnostic methodology is a modified version of the 1978 Bell Stage [@BELL1978], which categorizes the disease on a severity scale from one to three, with one and two being medically treated and stage three requiring surgical intervention [@Sheikh2010]. The typical neonate with NEC is a thriving premature infant that suddenly presents with feeding intolerance, abdominal distension, bloody stools, and signs of sepsis (temperature-, blood pressure-, heart- and respiratory rate change) [@Sharma2013]. Early-stage treatment involves cessation of oral feeding in favor of parenteral nutrition, nasogastric tube suction, and antibiotic therapy. Metabolic acidosis and radiological detection of pneumatosis intestinalis - gas cysts in the intestinal wall - indicates further disease progression, and barring surgery, additional treatment is limited to metabolic stabilization. The final stage of the disease is characterized by respiratory and circulatory arrest, peritoneal fluid buildup (ascites), and pneumoperitoneum (gas within the peritoneal cavity), which requires laparotomy with subsequent excision of necrotic intestinal tissue [@Stoll2015]. Overall mortality for surgically treated NEC cases is high (20-50%) as patients experience recurrence, intestinal strictures, short bowel syndrome, growth delay, and neurodevelopmental impairment [@Papillon2013]. The exact etiology of NEC is still unclear, although dozens of predisposing risk factors have been identified. Those with the greatest risk include low gestational age, bacterial colonization, and administration of milk replacement formula [@Nio2016]. Gestational age is the primary risk factor associated with NEC [@Samuels2017], and infants that bypass week 38 of gestation are at exceedingly low risk of developing NEC. Interestingly, there appears to be an inverse relationship between the degree of prematurity and the delay of disease onset. Infants born around week 27 present with NEC on average 32 days from birth, whereas infants born after closer to week 37 present with NEC on average only seven days from delivery [@Stoll2015]. Bacterial colonization of the gut is still not fully understood but begins before birth and, with time, increases in both abundance and diversity [@Lawn2014]. Preterm delivery likely upsets the normal development, and perturbation of the gut microbiome (often called a *dysbiosis*) is strongly associated with NEC. The term *microbiome* encompasses the entirety of non-host genes found in the gastrointestinal tract and includes mainly bacteria and viruses (bacteriophages or *phages*) but also fungi, archaea, and protozoa [@Lynch2016]. In the case of premature infants, the underdeveloped host immune system is likely ill-equipped to deal with intestinal dysbiosis. Little is known about the exact mechanisms of disease development, but the loss of a functional mucus layer is believed to be a prerequisite in early-stage NEC development [@Liu2020]. In term infants, the intestinal epithelium is protected from bacteria by thick mucus layers of gel-forming glycoproteins called mucins[@Johansson2013]. Mucin-2 (Muc2) is the main secretory mucin in the small intestine [@Ermund2013], where a single mucus layer protects the enterocytes from pathogens and foodstuff while simultaneously allowing for the dynamic absorption of nutrients. If the mucus layer becomes permeable, bacterial infiltration of the apical-facing tissue will elicit the inflammatory immune response likely causative of intestinal permeability, inflammation and subsequent tissue necrosis characteristic of the disease. Support for this hypothesis comes from studies in Muc2-deficient mice, which have been shown to develop colitis when challenged with a colitis-inducing agent, dextran sulfate sodium (DSS) [@VanderSluis2006]. Further support comes in the form of a recently published study on human NEC tissue, finding severely altered levels of Muc2 in the tissue of NEC neonates but not in equally premature and NEC-free infants [@Liu2020]. A central pathway of this inflammatory response is mediated by Toll-like-receptor 4 (TLR-4) stimulation [@Hackam2014]. TLR-4 is a pattern recognition receptor sensitive to the lipopolysaccharide (LPS) residues on the surface of gram-negative bacteria. Upon ligand binding to the TLR-4 receptor, IL-8 (CXCL1 or KC/GRO in mice) and TNF~alpha~ are released from local macrophages and subsequently recruit effector cells to the site of infection [@Guang2010]. In turn, MUC1, a membrane-bound mucin on the surface of most epithelial cells, is upregulated and suppresses TLR-4 signaling, attenuating further inflammation [@Kyo2012]. Upregulated expression of both TLR-4 and MUC1 have been shown to increase susceptibility to NEC, highlighting the importance of the bilateral regulation of inflammation [@McAuley2007, @Ng2016]. With such a wide range of clinical and biochemical markers, it is unsurprising that animal models of NEC, each focusing on specific "NEC-like" symptoms (lesions, pneumatosis intestinalis, inflammation, or biomarkers of enterocyte damage), number in the several hundred [@Mendez2020].
+
+### Animal models of NEC
+
+There is no "gold standard" animal model for the study of NEC. Current models range from piglets to rabbits, rats, mice, quails, and even non-human primates. Of these, the rat model is most commonly used due to its cost-effectiveness and the robustness of rats to the stressors used to induce NEC [@Mendez2020]. This model relies on an initial insult to the intestines, typically bouts of oxygen deprivation, hypothermia, and DSS [@Sodhi2008]. For a long time, this approach was thought to mimic the etiology of human infant NEC. However, epidemiologic evidence suggests that the most common form of NEC is not triggered by a hypoxic-ischemic event [@Young2011], and several authors have questioned the translational value of some of the existing models [@Patel2020]. Despite the high costs and difficulty associated with the model, several models using piglets have been described in the literature [@Sodhi2008]. Successful models rely on prematurity (c-section) and formula-feeding to induce the disease, two of the main factors contributing to human NEC. Whether the development of NEC in association with formula feeding represents the presence of a harmful component in infant formula or the absence of the passive immunity awarded by agents only present in breast milk remains to be determined [@LeHurouLuron2010]. In a recent study, NEC was successfully mitigated in preterm c-section piglets on formula-replacement by administration of a fecal filtrate containing viral particles (phages) [@Brunse2021]. Phages have been used to treat bacterial infection diseases [@Ott2017] and likely mitigate their beneficial effect by manipulating the gut microbiome. The NEC-associated dysbiosis seen in the study's control animals was alleviated along with the subsequent disease. These findings helped pave the way for the preapproval of a human trial, PREPHAGE, in which premature neonates will receive virus-containing fecal filtrates to stabilize the suspected intestinal dysbiosis and thus prevent disease development.
+
+### Maternal Antibiotics Treatment
+
+Although highly successful as a model of the human neonate, there are disadvantages to working with pigs. Costs and long gestation means a lower scientific throughput, and a faster and cheaper alternative would speed up development. The use of mice has historically been discouraging because of the difficulty in sustaining a neonatal model (a mouse pup at term weighs approx. 1.5g compared with 14g for an equal term rat pup), making it difficult to work with very young mouse offspring. A recently published study [@Chen2021] investigating the effects of Maternal Antibiotics Treatment (MAT) during pregnancy found that a moderate dose of antibiotics administered in the drinking water of pregnant C57BL/6N mice on pregnancy day 15 resulted in alterations in the intestinal microbiome composition in the offspring. Furthermore, offspring from antibiotic-treated mice had lower birth weights, decreased expression of intestinal barrier proteins, and greater intestinal injury scores than offspring from non-antibiotic-treated mice. These effects were seen in breastfed mice, despite the passive immunity and maturating effects known to come with breastmilk [@Barlow1974]. These findings suggest that MAT potentially caused growth- and developmental retardation. Similar to the human babies, the offspring's slightly less mature immune system potentially rendered the pups more susceptible to intestinal damage from the reported microbiome dysbiosis. Although the authors did not categorize their findings as NEC-like, they share several characteristics.
+
+### Aim
+
+If developmental retardation could be achieved with MAT, we hypothesized that replacing breastmilk with formula feeding would halt intestinal maturation while simultaneously providing a barrier stressor. We, therefore, decided to test the viability of a model based on 3-day-old mice from maternally antibiotic-treated mothers, in which breastmilk was replaced with formula as soon as possible. This required oral feed administration of pups \<2g, which we were not sure would be technically feasible. Therefore, this project aimed to establish a mouse model of necrotizing enterocolitis with a similar etiology as that proposed in preterm human babies, i.e., intestinal immaturity and gut microbiome dysbiosis, by combining maternal antibiotic treatment with formula feeding.
+\newpage
+
+## Results
+```{r results}
+# Load weight data
+data <- read_excel(here::here("data", "processed", "weight_development.xlsx")) %>% 
+  select(sample_id:cage, bodyweight_birthday_group_average, bodyweight_birthday_plus_24H_group_average, bodyweight_birthday_plus_48H_group_average, bodyweight_baseline, bodyweight_baseline_plus_24h, bodyweight_baseline_plus_48h) %>% 
+  rename(day_0 = "bodyweight_birthday_group_average",
+         day_1 = "bodyweight_birthday_plus_24H_group_average", 
+         day_2 = "bodyweight_birthday_plus_48H_group_average",
+         day_3 = bodyweight_baseline, 
+         day_4 = `bodyweight_baseline_plus_24h`, 
+         day_5 = `bodyweight_baseline_plus_48h`,) %>% 
+  pivot_longer(., cols = c(day_0:day_5),
+                names_to = "time",
+                values_to = "bodyweight") %>% 
+  mutate(received_antibiotics = recode_factor(received_antibiotics, 
+                                       Yes = "MAT",
+                                       No = "CON"))
+```
+
+
+\newpage
+
+## Discussion
+\newpage
+
+## Conclusion
+\newpage
+
+## Methods
+\newpage
+```{r figRef, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure caption here"}
+## R code here, with plot output at end, for example using ggplot2
+
+```
+
+## References
