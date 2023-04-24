@@ -15,11 +15,12 @@ library(patchwork)
 library(tidyverse)
 library(readxl)
 library(broom)
+library(here)
 ```
 
 #___Analysis of the weight development in the MARTRINEM study___
 ```{r}
-data <- read_excel("data/processed/weight_development.xlsx") %>% 
+data <- read_excel(here("data", "processed","weight_development.xlsx")) %>% 
   select(sample_id:cage, bodyweight_birthday_group_average, bodyweight_birthday_plus_24H_group_average, bodyweight_birthday_plus_48H_group_average, bodyweight_baseline, bodyweight_baseline_plus_24h, bodyweight_baseline_plus_48h) %>% 
   rename(day_0 = "bodyweight_birthday_group_average",
          day_1 = "bodyweight_birthday_plus_24H_group_average", 
