@@ -1,9 +1,9 @@
 ---
 output:
-  bookdown::pdf_document2: 
-    toc: no
-    keep_tex: yes
-  #bookdown::word_document2: default
+  #bookdown::pdf_document2: 
+    #toc: no
+    #keep_tex: yes
+  bookdown::word_document2: default
 fig_caption: yes
 always_allow_html: yes
 bibliography: 
@@ -39,7 +39,7 @@ Kaare D. Tranaes${^1}$, Anders Brunse${^2}$${^\dagger}$
 ${^1}$ Department of Food Microbiology, UCPH  
 ${^2}$AEM, SUND  
 
-${^\dagger}$ To whom correspondance should be adressed
+${^\dagger}$ To whom correspondence should be adressed
 
 
 \newpage

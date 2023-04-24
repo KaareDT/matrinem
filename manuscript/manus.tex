@@ -1,0 +1,336 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\usepackage{endfloat}
+\usepackage{setspace}\doublespacing
+\usepackage{lineno}
+\linenumbers
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+
+\hypertarget{the-great-matrinem-study}{%
+\section{The great Matrinem Study}\label{the-great-matrinem-study}}
+
+\vspace{20 mm}
+
+Kaare D. Tranaes\({^1}\), Anders Brunse\({^2}\)\({^\dagger}\)
+
+\vspace{10 mm}
+
+\({^1}\) Department of Food Microbiology, UCPH\\
+\({^2}\)AEM, SUND
+
+\({^\dagger}\) To whom correspondance should be adressed
+
+\newpage
+
+\hypertarget{abstract}{%
+\subsection{Abstract:}\label{abstract}}
+
+\hypertarget{introduction}{%
+\subsection{Introduction}\label{introduction}}
+
+\hypertarget{about-necrotizing-entericolitis}{%
+\subsubsection{About Necrotizing Entericolitis}\label{about-necrotizing-entericolitis}}
+
+Nescrotizing Enterocolitis (NEC) is a devastating inflammatory and necrotic bowel disease, representing the leading cause of death in premature infants (Niño, Sodhi, and Hackam 2016). It is estimated that upwards of 10\% of neonates born before week 33 of gestation are affected. The disease is largely incurable, and mortality ranges from 20-50\% depending on disease severity (Alsaied, Islam, and Thalib 2020). Those who survive often do so with severe, life-long complications (Papillon et al. 2013). There is no universal definition of NEC (Patel et al. 2020), and entities use different protocols for diagnosing the disease. The most commonly used diagnostic methodology is a modified version of the 1978 Bell Stage (BELL et al. 1978), which categorizes the disease on a severity scale from one to three, with one and two being medically treated and stage three requiring surgical intervention (Sheikh and Gaillard 2010). The typical neonate with NEC is a thriving premature infant that suddenly presents with feeding intolerance, abdominal distension, bloody stools, and signs of sepsis (temperature-, blood pressure-, heart- and respiratory rate change) (Sharma and Hudak 2013). Early-stage treatment involves cessation of oral feeding in favor of parenteral nutrition, nasogastric tube suction, and antibiotic therapy. Metabolic acidosis and radiological detection of pneumatosis intestinalis - gas cysts in the intestinal wall - indicates further disease progression, and barring surgery, additional treatment is limited to metabolic stabilization. The final stage of the disease is characterized by respiratory and circulatory arrest, peritoneal fluid buildup (ascites), and pneumoperitoneum (gas within the peritoneal cavity), which requires laparotomy with subsequent excision of necrotic intestinal tissue (Stoll et al. 2015). Overall mortality for surgically treated NEC cases is high (20-50\%) as patients experience recurrence, intestinal strictures, short bowel syndrome, growth delay, and neurodevelopmental impairment (Papillon et al. 2013). The exact etiology of NEC is still unclear, although dozens of predisposing risk factors have been identified. Those with the greatest risk include low gestational age, bacterial colonization, and administration of milk replacement formula (Niño, Sodhi, and Hackam 2016). Gestational age is the primary risk factor associated with NEC (Samuels et al. 2017), and infants that bypass week 38 of gestation are at exceedingly low risk of developing NEC. Interestingly, there appears to be an inverse relationship between the degree of prematurity and the delay of disease onset. Infants born around week 27 present with NEC on average 32 days from birth, whereas infants born after closer to week 37 present with NEC on average only seven days from delivery (Stoll et al. 2015). Bacterial colonization of the gut is still not fully understood but begins before birth and, with time, increases in both abundance and diversity (Lawn et al. 2014). Preterm delivery likely upsets the normal development, and perturbation of the gut microbiome (often called a \emph{dysbiosis}) is strongly associated with NEC. The term \emph{microbiome} encompasses the entirety of non-host genes found in the gastrointestinal tract and includes mainly bacteria and viruses (bacteriophages or \emph{phages}) but also fungi, archaea, and protozoa (Lynch and Pedersen 2016). In the case of premature infants, the underdeveloped host immune system is likely ill-equipped to deal with intestinal dysbiosis. Little is known about the exact mechanisms of disease development, but the loss of a functional mucus layer is believed to be a prerequisite in early-stage NEC development (Liu et al. 2020). In term infants, the intestinal epithelium is protected from bacteria by thick mucus layers of gel-forming glycoproteins called mucins(Johansson, Sjövall, and Hansson 2013). Mucin-2 (Muc2) is the main secretory mucin in the small intestine (Ermund et al. 2013), where a single mucus layer protects the enterocytes from pathogens and foodstuff while simultaneously allowing for the dynamic absorption of nutrients. If the mucus layer becomes permeable, bacterial infiltration of the apical-facing tissue will elicit the inflammatory immune response likely causative of intestinal permeability, inflammation and subsequent tissue necrosis characteristic of the disease. Support for this hypothesis comes from studies in Muc2-deficient mice, which have been shown to develop colitis when challenged with a colitis-inducing agent, dextran sulfate sodium (DSS) (Sluis et al. 2006). Further support comes in the form of a recently published study on human NEC tissue, finding severely altered levels of Muc2 in the tissue of NEC neonates but not in equally premature and NEC-free infants (Liu et al. 2020). A central pathway of this inflammatory response is mediated by Toll-like-receptor 4 (TLR-4) stimulation (Lu, Sodhi, and Hackam 2014). TLR-4 is a pattern recognition receptor sensitive to the lipopolysaccharide (LPS) residues on the surface of gram-negative bacteria. Upon ligand binding to the TLR-4 receptor, IL-8 (CXCL1 or KC/GRO in mice) and TNF\textsubscript{alpha} are released from local macrophages and subsequently recruit effector cells to the site of infection (Guang et al. 2010). In turn, MUC1, a membrane-bound mucin on the surface of most epithelial cells, is upregulated and suppresses TLR-4 signaling, attenuating further inflammation (Kyo et al. 2012). Upregulated expression of both TLR-4 and MUC1 have been shown to increase susceptibility to NEC, highlighting the importance of the bilateral regulation of inflammation Ng and Sutton (2016). With such a wide range of clinical and biochemical markers, it is unsurprising that animal models of NEC, each focusing on specific ``NEC-like'' symptoms (lesions, pneumatosis intestinalis, inflammation, or biomarkers of enterocyte damage), number in the several hundred (Mendez et al. 2020).
+
+\hypertarget{animal-models-of-nec}{%
+\subsubsection{Animal models of NEC}\label{animal-models-of-nec}}
+
+There is no ``gold standard'' animal model for the study of NEC. Current models range from piglets to rabbits, rats, mice, quails, and even non-human primates. Of these, the rat model is most commonly used due to its cost-effectiveness and the robustness of rats to the stressors used to induce NEC (Mendez et al. 2020). This model relies on an initial insult to the intestines, typically bouts of oxygen deprivation, hypothermia, and DSS (Sodhi et al. 2008). For a long time, this approach was thought to mimic the etiology of human infant NEC. However, epidemiologic evidence suggests that the most common form of NEC is not triggered by a hypoxic-ischemic event (Young, Kingma, and Neu 2011), and several authors have questioned the translational value of some of the existing models (Patel et al. 2020). Despite the high costs and difficulty associated with the model, several models using piglets have been described in the literature (Sodhi et al. 2008). Successful models rely on prematurity (c-section) and formula-feeding to induce the disease, two of the main factors contributing to human NEC. Whether the development of NEC in association with formula feeding represents the presence of a harmful component in infant formula or the absence of the passive immunity awarded by agents only present in breast milk remains to be determined (Huërou-Luron, Blat, and Boudry 2010). In a recent study, NEC was successfully mitigated in preterm c-section piglets on formula-replacement by administration of a fecal filtrate containing viral particles (phages) (Brunse et al. 2021). Phages have been used to treat bacterial infection diseases (Ott et al. 2017) and likely mitigate their beneficial effect by manipulating the gut microbiome. The NEC-associated dysbiosis seen in the study's control animals was alleviated along with the subsequent disease. These findings helped pave the way for the preapproval of a human trial, PREPHAGE, in which premature neonates will receive virus-containing fecal filtrates to stabilize the suspected intestinal dysbiosis and thus prevent disease development.
+
+\hypertarget{maternal-antibiotics-treatment}{%
+\subsubsection{Maternal Antibiotics Treatment}\label{maternal-antibiotics-treatment}}
+
+Although highly successful as a model of the human neonate, there are disadvantages to working with pigs. Costs and long gestation means a lower scientific throughput, and a faster and cheaper alternative would speed up development. The use of mice has historically been discouraging because of the difficulty in sustaining a neonatal model (a mouse pup at term weighs approx. 1.5g compared with 14g for an equal term rat pup), making it difficult to work with very young mouse offspring. A recently published study (Chen, Chou, and Yang 2021) investigating the effects of Maternal Antibiotics Treatment (MAT) during pregnancy found that a moderate dose of antibiotics administered in the drinking water of pregnant C57BL/6N mice on pregnancy day 15 resulted in alterations in the intestinal microbiome composition in the offspring. Furthermore, offspring from antibiotic-treated mice had lower birth weights, decreased expression of intestinal barrier proteins, and greater intestinal injury scores than offspring from non-antibiotic-treated mice. These effects were seen in breastfed mice, despite the passive immunity and maturating effects known to come with breastmilk (Barlow et al. 1974). These findings suggest that MAT potentially caused growth- and developmental retardation. Similar to the human babies, the offspring's slightly less mature immune system potentially rendered the pups more susceptible to intestinal damage from the reported microbiome dysbiosis. Although the authors did not categorize their findings as NEC-like, they share several characteristics.
+
+\hypertarget{aim}{%
+\subsubsection{Aim}\label{aim}}
+
+If developmental retardation could be achieved with MAT, we hypothesized that replacing breastmilk with formula feeding would halt intestinal maturation while simultaneously providing a barrier stressor. We, therefore, decided to test the viability of a model based on 3-day-old mice from maternally antibiotic-treated mothers, in which breastmilk was replaced with formula as soon as possible. This required oral feed administration of pups \textless2g, which we were not sure would be technically feasible. Therefore, this project aimed to establish a mouse model of necrotizing enterocolitis with a similar etiology as that proposed in preterm human babies, i.e., intestinal immaturity and gut microbiome dysbiosis, by combining maternal antibiotic treatment with formula feeding.
+\newpage
+
+\hypertarget{results}{%
+\subsection{Results}\label{results}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Load weight data}
+\NormalTok{data }\OtherTok{\textless{}{-}} \FunctionTok{read\_excel}\NormalTok{(here}\SpecialCharTok{::}\FunctionTok{here}\NormalTok{(}\StringTok{"data"}\NormalTok{, }\StringTok{"processed"}\NormalTok{, }\StringTok{"weight\_development.xlsx"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(sample\_id}\SpecialCharTok{:}\NormalTok{cage, bodyweight\_birthday\_group\_average, bodyweight\_birthday\_plus\_24H\_group\_average, bodyweight\_birthday\_plus\_48H\_group\_average, bodyweight\_baseline, bodyweight\_baseline\_plus\_24h, bodyweight\_baseline\_plus\_48h) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{day\_0 =} \StringTok{"bodyweight\_birthday\_group\_average"}\NormalTok{,}
+         \AttributeTok{day\_1 =} \StringTok{"bodyweight\_birthday\_plus\_24H\_group\_average"}\NormalTok{, }
+         \AttributeTok{day\_2 =} \StringTok{"bodyweight\_birthday\_plus\_48H\_group\_average"}\NormalTok{,}
+         \AttributeTok{day\_3 =}\NormalTok{ bodyweight\_baseline, }
+         \AttributeTok{day\_4 =} \StringTok{\textasciigrave{}}\AttributeTok{bodyweight\_baseline\_plus\_24h}\StringTok{\textasciigrave{}}\NormalTok{, }
+         \AttributeTok{day\_5 =} \StringTok{\textasciigrave{}}\AttributeTok{bodyweight\_baseline\_plus\_48h}\StringTok{\textasciigrave{}}\NormalTok{,) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{pivot\_longer}\NormalTok{(., }\AttributeTok{cols =} \FunctionTok{c}\NormalTok{(day\_0}\SpecialCharTok{:}\NormalTok{day\_5),}
+                \AttributeTok{names\_to =} \StringTok{"time"}\NormalTok{,}
+                \AttributeTok{values\_to =} \StringTok{"bodyweight"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{received\_antibiotics =} \FunctionTok{recode\_factor}\NormalTok{(received\_antibiotics, }
+                                       \AttributeTok{Yes =} \StringTok{"MAT"}\NormalTok{,}
+                                       \AttributeTok{No =} \StringTok{"CON"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\newpage
+
+\hypertarget{discussion}{%
+\subsection{Discussion}\label{discussion}}
+
+\newpage
+
+\hypertarget{conclusion}{%
+\subsection{Conclusion}\label{conclusion}}
+
+\newpage
+
+\hypertarget{methods}{%
+\subsection{Methods}\label{methods}}
+
+\newpage
+
+\hypertarget{references}{%
+\subsection*{References}\label{references}}
+\addcontentsline{toc}{subsection}{References}
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-Alsaied2020}{}}%
+Alsaied, Amer, Nazmul Islam, and Lukman Thalib. 2020. {``Global Incidence of Necrotizing Enterocolitis: A Systematic Review and Meta-Analysis.''} \emph{{BMC} Pediatrics} 20 (1). \url{https://doi.org/10.1186/s12887-020-02231-5}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Barlow1974}{}}%
+Barlow, Barbara, Thomas V. Santulli, William C. Heird, Jane Pitt, William A. Blanc, and John N. Schullinger. 1974. {``An Experimental Study of Acute Neonatal Enterocolitis{\textemdash}the Importance of Breast Milk.''} \emph{Journal of Pediatric Surgery} 9 (5): 587--95. \url{https://doi.org/10.1016/0022-3468(74)90093-1}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-BELL1978}{}}%
+BELL, MARTIN J., JESSIE L. TERNBERG, RALPH D. FEIGIN, JAMES P. KEATING, RICHARD MARSHALL, LESLIE BARTON, and THOMAS BROTHERTON. 1978. {``Neonatal Necrotizing Enterocolitis.''} \emph{Annals of Surgery} 187 (1): 1--7. \url{https://doi.org/10.1097/00000658-197801000-00001}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Brunse2021}{}}%
+Brunse, Anders, Ling Deng, Xiaoyu Pan, Yan Hui, Josue L. Castro-Mejia, Witold Kot, Duc Ninh Nguyen, Jan Bojsen-Møller Secher, Dennis Sandris Nielsen, and Thomas Thymann. 2021. {``Fecal Filtrate Transplantation Protects Against Necrotizing Enterocolitis.''} \emph{The {ISME} Journal} 16 (3): 686--94. \url{https://doi.org/10.1038/s41396-021-01107-5}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Chen2021}{}}%
+Chen, Chung-Ming, Hsiu-Chu Chou, and Yu-Chen S. H. Yang. 2021. {``Maternal Antibiotic Treatment Disrupts the Intestinal Microbiota and Intestinal Development in Neonatal Mice.''} \emph{Frontiers in Microbiology} 12 (June). \url{https://doi.org/10.3389/fmicb.2021.684233}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Ermund2013}{}}%
+Ermund, Anna, André Schütte, Malin E. V. Johansson, Jenny K. Gustafsson, and Gunnar C. Hansson. 2013. {``Studies of Mucus in Mouse Stomach, Small Intestine, and Colon. I. Gastrointestinal Mucus Layers Have Different Properties Depending on Location as Well as over the Peyer{\textquotesingle}s Patches.''} \emph{American Journal of Physiology-Gastrointestinal and Liver Physiology} 305 (5): G341--47. \url{https://doi.org/10.1152/ajpgi.00046.2013}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Guang2010}{}}%
+Guang, Wei, Hua Ding, Steven J. Czinn, K. Chul Kim, Thomas G. Blanchard, and Erik P. Lillehoj. 2010. {``Muc1 Cell Surface Mucin Attenuates Epithelial Inflammation in Response to a Common Mucosal Pathogen.''} \emph{Journal of Biological Chemistry} 285 (27): 20547--57. \url{https://doi.org/10.1074/jbc.m110.121319}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-LeHurouLuron2010}{}}%
+Huërou-Luron, Isabelle Le, Sophie Blat, and Gaëlle Boudry. 2010. {``Breast Vs. Formula-Feeding Formula-Feeding: Impacts on the Digestive Tract and Immediate and Long-Term Health Effects.''} \emph{Nutrition Research Reviews} 23 (1): 23--36. \url{https://doi.org/10.1017/s0954422410000065}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Johansson2013}{}}%
+Johansson, Malin E. V., Henrik Sjövall, and Gunnar C. Hansson. 2013. {``The Gastrointestinal Mucus System in Health and Disease.''} \emph{Nature Reviews Gastroenterology and Hepatology} 10 (6): 352--61. \url{https://doi.org/10.1038/nrgastro.2013.35}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Kyo2012}{}}%
+Kyo, Yoshiyuki, Kosuke Kato, Yong Sung Park, Sachin Gajhate, Tsuyoshi Umehara, Erik P. Lillehoj, Harumi Suzaki, and Kwang Chul Kim. 2012. {``Antiinflammatory Role of {MUC}1 Mucin During Infection with Nontypeable Haemophilus Influenzae.''} \emph{American Journal of Respiratory Cell and Molecular Biology} 46 (2): 149--56. \url{https://doi.org/10.1165/rcmb.2011-0142oc}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Lawn2014}{}}%
+Lawn, Joy E, Hannah Blencowe, Shefali Oza, Danzhen You, Anne CC Lee, Peter Waiswa, Marek Lalli, et al. 2014. {``Every Newborn: Progress, Priorities, and Potential Beyond Survival.''} \emph{The Lancet} 384 (9938): 189--205. \url{https://doi.org/10.1016/s0140-6736(14)60496-7}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Liu2020}{}}%
+Liu, Dong, Yanzhen Xu, Jinxing Feng, Jialin Yu, Jinjie Huang, and Zhiguang Li. 2020. {``Mucins and Tight Junctions Are Severely Altered in Necrotizing Enterocolitis Neonates.''} \emph{American Journal of Perinatology} 38 (11): 1174--80. \url{https://doi.org/10.1055/s-0040-1710558}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Hackam2014}{}}%
+Lu, Peng, Chhinder P. Sodhi, and David J. Hackam. 2014. {``Toll-Like Receptor Regulation of Intestinal Development and Inflammation in the Pathogenesis of Necrotizing Enterocolitis.''} \emph{Pathophysiology} 21 (1): 81--93. \url{https://doi.org/10.1016/j.pathophys.2013.11.007}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Lynch2016}{}}%
+Lynch, Susan V., and Oluf Pedersen. 2016. {``The Human Intestinal Microbiome in Health and Disease.''} Edited by Elizabeth G. Phimister. \emph{New England Journal of Medicine} 375 (24): 2369--79. \url{https://doi.org/10.1056/nejmra1600266}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-McAuley2007}{}}%
+McAuley, Julie L., Sara K. Linden, Chin Wen Png, Rebecca M. King, Helen L. Pennington, Sandra J. Gendler, Timothy H. Florin, Geoff R. Hill, Victoria Korolik, and Michael A. McGuckin. 2007. {``{MUC}1 Cell Surface Mucin Is a Critical Element of the Mucosal Barrier to Infection.''} \emph{Journal of Clinical Investigation} 117 (8): 2313--24. \url{https://doi.org/10.1172/jci26705}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Mendez2020}{}}%
+Mendez, Yomara Stephanie, Faraz A Khan, Gregory Van Perrier, and Andrei Radulescu. 2020. {``Animal Models of Necrotizing Enterocolitis.''} \emph{World Journal of Pediatric Surgery} 3 (1): e000109. \url{https://doi.org/10.1136/wjps-2020-000109}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Ng2016}{}}%
+Ng, G Z, and P Sutton. 2016. {``The {MUC}1 Mucin Specifically Inhibits Activation of the {NLRP}3 Inflammasome.''} \emph{Genes and Immunity} 17 (3): 203--6. \url{https://doi.org/10.1038/gene.2016.10}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Nio2016}{}}%
+Niño, Diego F., Chhinder P. Sodhi, and David J. Hackam. 2016. {``Necrotizing Enterocolitis: New Insights into Pathogenesis and Mechanisms.''} \emph{Nature Reviews Gastroenterology and Hepatology} 13 (10): 590--600. \url{https://doi.org/10.1038/nrgastro.2016.119}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Ott2017}{}}%
+Ott, Stephan J., Georg H. Waetzig, Ateequr Rehman, Jacqueline Moltzau-Anderson, Richa Bharti, Juris A. Grasis, Liam Cassidy, et al. 2017. {``Efficacy of Sterile Fecal Filtrate Transfer for Treating Patients with Clostridium Difficile Infection.''} \emph{Gastroenterology} 152 (4): 799--811.e7. \url{https://doi.org/10.1053/j.gastro.2016.11.010}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Papillon2013}{}}%
+Papillon, Stephanie, Shannon L. Castle, Christopher P. Gayer, and Henri R. Ford. 2013. {``Necrotizing Enterocolitis.''} \emph{Advances in Pediatrics} 60 (1): 263--79. \url{https://doi.org/10.1016/j.yapd.2013.04.011}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Patel2020}{}}%
+Patel, Ravi Mangal, Joanne Ferguson, Steven J. McElroy, Minesh Khashu, and Michael S. Caplan. 2020. {``Defining Necrotizing Enterocolitis: Current Difficulties and Future Opportunities.''} \emph{Pediatric Research} 88 (S1): 10--15. \url{https://doi.org/10.1038/s41390-020-1074-4}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Samuels2017}{}}%
+Samuels, Noor, Rob A. van de Graaf, Rogier C. J. de Jonge, Irwin K. M. Reiss, and Marijn J. Vermeulen. 2017. {``Risk Factors for Necrotizing Enterocolitis in Neonates: A Systematic Review of Prognostic Studies.''} \emph{{BMC} Pediatrics} 17 (1). \url{https://doi.org/10.1186/s12887-017-0847-3}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Sharma2013}{}}%
+Sharma, Renu, and Mark Lawrence Hudak. 2013. {``A Clinical Perspective of Necrotizing Enterocolitis.''} \emph{Clinics in Perinatology} 40 (1): 27--51. \url{https://doi.org/10.1016/j.clp.2012.12.012}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Sheikh2010}{}}%
+Sheikh, Yusra, and Frank Gaillard. 2010. {``Necrotising Enterocolitis (Staging).''} Radiopaedia.org. \url{https://doi.org/10.53347/rid-8456}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-VanderSluis2006}{}}%
+Sluis, Maria Van der, Barbara A. E. De Koning, Adrianus C. J. M. De Bruijn, Anna Velcich, Jules P. P. Meijerink, Johannes B. Van Goudoever, Hans A. Büller, et al. 2006. {``Muc2-Deficient Mice Spontaneously Develop Colitis, Indicating That {MUC}2 Is Critical for Colonic Protection.''} \emph{Gastroenterology} 131 (1): 117--29. \url{https://doi.org/10.1053/j.gastro.2006.04.020}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Sodhi2008}{}}%
+Sodhi, Chhinder, Ward Richardson, Steven Gribar, and David J. Hackam. 2008. {``The Development of Animal Models for the Study of Necrotizing Enterocolitis.''} \emph{Disease Models and Mechanisms} 1 (2-3): 94--98. \url{https://doi.org/10.1242/dmm.000315}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Stoll2015}{}}%
+Stoll, Barbara J., Nellie I. Hansen, Edward F. Bell, Michele C. Walsh, Waldemar A. Carlo, Seetha Shankaran, Abbot R. Laptook, et al. 2015. {``Trends in Care Practices, Morbidity, and Mortality of Extremely Preterm Neonates, 1993-2012.''} \emph{{JAMA}} 314 (10): 1039. \url{https://doi.org/10.1001/jama.2015.10244}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Young2011}{}}%
+Young, Christopher M., Sandra D. K. Kingma, and Josef Neu. 2011. {``Ischemia-Reperfusion and Neonatal Intestinal Injury.''} \emph{The Journal of Pediatrics} 158 (2): e25--28. \url{https://doi.org/10.1016/j.jpeds.2010.11.009}.
+
+\end{CSLReferences}
+
+\end{document}
